@@ -1,0 +1,25 @@
+{
+    "name": "recca0120/config",
+    "description": "Laravel 5 Config",
+    "keywords": ["laravel", "config", "database"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "recca0120",
+            "email": "recca0120@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/config": "~5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Recca0120\\Config\\": "src/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev"
+}
