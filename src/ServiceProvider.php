@@ -2,28 +2,27 @@
 
 namespace Recca0120\Config;
 
-use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
+use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Recca0120\Config\Listeners\ConfigEventListener;
-use Recca0120\Config\Middleware\ConfigMiddleware;
+use Recca0120\Config\Middleware\StoreHandle;
+use Recca0120\Config\Observers\CacheHandle;
 
 class ServiceProvider extends BaseServiceProvider
 {
     protected $kernel;
 
-    public function boot(Kernel $kernel, DispatcherContract $events)
+    public function boot(Kernel $kernel)
     {
-        $events->subscribe(ConfigEventListener::class);
-        $kernel->pushMiddleware(ConfigMiddleware::class);
+        Config::observe(new CacheHandle);
+        $kernel->pushMiddleware(StoreHandle::class);
         $this->publishAsses();
 
-        $config = new Repository(config()->all());
-        date_default_timezone_set($config['app.timezone']);
-
+        $config = new Repository(config());
         $this->app['config'] = $this->app->share(function ($app) use ($config) {
             return $config;
         });
+        date_default_timezone_set(config('app.timezone'));
     }
 
     public function publishAsses()
@@ -36,7 +35,7 @@ class ServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->app->singleton(
-            'Illuminate\Contracts\Config\Repository',
+            ConfigRepository::class,
             Repository::class
         );
     }
