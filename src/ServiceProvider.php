@@ -2,19 +2,18 @@
 
 namespace Recca0120\Config;
 
-use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Recca0120\Config\Listeners\ConfigEventListener;
 use Recca0120\Config\Middleware\ConfigMiddleware;
+use Recca0120\Config\Observers\ConfigObserver;
 
 class ServiceProvider extends BaseServiceProvider
 {
     protected $kernel;
 
-    public function boot(Kernel $kernel, DispatcherContract $events)
+    public function boot(Kernel $kernel)
     {
-        $events->subscribe(ConfigEventListener::class);
+        Config::observe(new ConfigObserver);
         $kernel->pushMiddleware(ConfigMiddleware::class);
         $this->publishAsses();
 
