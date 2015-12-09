@@ -2,10 +2,11 @@
 
 namespace Recca0120\Config;
 
+use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use Recca0120\Config\Middleware\StoreHandle;
-use Recca0120\Config\Observers\ModelCache;
+use Recca0120\Config\Observers\CacheHandle;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -13,16 +14,15 @@ class ServiceProvider extends BaseServiceProvider
 
     public function boot(Kernel $kernel)
     {
-        Config::observe(new ModelCache);
+        Config::observe(new CacheHandle);
         $kernel->pushMiddleware(StoreHandle::class);
         $this->publishAsses();
 
-        $config = new Repository(config()->all());
-        date_default_timezone_set($config['app.timezone']);
-
+        $config = new Repository(config());
         $this->app['config'] = $this->app->share(function ($app) use ($config) {
             return $config;
         });
+        date_default_timezone_set(config('app.timezone'));
     }
 
     public function publishAsses()
@@ -35,7 +35,7 @@ class ServiceProvider extends BaseServiceProvider
     public function register()
     {
         $this->app->singleton(
-            'Illuminate\Contracts\Config\Repository',
+            ConfigRepository::class,
             Repository::class
         );
     }

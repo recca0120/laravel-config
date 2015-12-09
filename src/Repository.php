@@ -3,26 +3,34 @@
 namespace Recca0120\Config;
 
 use Cache;
-use Illuminate\Config\Repository as BaseRepository;
+use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Database\QueryException;
 
-class Repository extends BaseRepository
+class Repository extends ConfigRepository
 {
-    public static $original = [];
+    protected $config;
 
-    public static $changed = [];
+    protected $backup = [];
 
-    public function __construct(array $items = [])
+    protected $changed = [];
+
+    protected $isDirty = false;
+
+    public function __construct(ConfigRepository $config = null)
     {
-        $this->items = $items;
-        try {
-            $config = Cache::rememberForever(static::getCacheKey(), function () {
-                return Config::all()->pluck('value', 'key')->toArray();
+        if ($config !== null) {
+            $this->changed = Cache::rememberForever($this->getCacheKey(), function () {
+                $result = [];
+                try {
+                    return Config::all()->pluck('value', 'key')->toArray();
+                } catch (QueryException $e) {
+                }
+
+                return $result;
             });
-            foreach ($config as $key => $value) {
-                array_set(static::$original, $key, $value);
-            }
-            $this->items = array_merge($this->items, static::$original);
-        } catch (QueryException $e) {
+            $config->set($this->changed);
+            $this->items = $config->all();
+            $this->config = $config;
         }
     }
 
@@ -33,24 +41,47 @@ class Repository extends BaseRepository
                 $this->set($innerKey, $innerValue);
             }
         } else {
-            array_set(static::$changed, $key, $value);
-            array_set($this->items, $key, $value);
+            $original = $this->get($key);
+            if ($value !== $original) {
+                $this->isDirty = true;
+                array_set($this->changed, $key, $value);
+                array_set($this->items, $key, $value);
+            }
         }
     }
 
-    public static function getCacheKey()
+    public function getCacheKey()
     {
-        return $cacheKey = md5(static::class);
+        return md5(static::class);
     }
 
-    public static function getChanged()
+    public function getDirty()
     {
-        if (empty(static::$changed) === true) {
-            return [];
+        if ($this->isDirty === false) {
+            return false;
         }
 
-        $config = array_merge(static::$original, static::$changed);
+        return array_dot($this->changed);
+    }
 
-        return array_dot($config);
+    public function backup()
+    {
+        $this->backup = [
+            'items' => $this->items,
+            'changed' => $this->changed,
+            'isDirty' => $this->isDirty,
+        ];
+
+        return $this;
+    }
+
+    public function restore()
+    {
+        $this->items = $this->backup['items'];
+        $this->changed = $this->backup['changed'];
+        $this->isDirty = $this->backup['isDirty'];
+        $this->backup = [];
+
+        return $this;
     }
 }

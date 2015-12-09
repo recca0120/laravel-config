@@ -3,9 +3,8 @@
 namespace Recca0120\Config\Observers;
 
 use Cache;
-use Recca0120\Config\Repository;
 
-class ModelCache
+class CacheHandle
 {
     protected static $clearCache = false;
 
@@ -13,7 +12,7 @@ class ModelCache
     {
         if (static::$clearCache === false) {
             static::$clearCache = true;
-            Cache::forget(Repository::getCacheKey());
+            Cache::forget(config()->getCacheKey());
         }
     }
 
