@@ -7,7 +7,7 @@ use DB;
 use Recca0120\Config\Config;
 use Recca0120\Config\Repository;
 
-class ConfigMiddleware
+class StoreHandle
 {
     public function handle($request, Closure $next)
     {

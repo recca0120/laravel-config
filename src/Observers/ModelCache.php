@@ -5,7 +5,7 @@ namespace Recca0120\Config\Observers;
 use Cache;
 use Recca0120\Config\Repository;
 
-class ConfigObserver
+class ModelCache
 {
     protected static $clearCache = false;
 

@@ -4,8 +4,8 @@ namespace Recca0120\Config;
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Recca0120\Config\Middleware\ConfigMiddleware;
-use Recca0120\Config\Observers\ConfigObserver;
+use Recca0120\Config\Middleware\StoreHandle;
+use Recca0120\Config\Observers\ModelCache;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -13,8 +13,8 @@ class ServiceProvider extends BaseServiceProvider
 
     public function boot(Kernel $kernel)
     {
-        Config::observe(new ConfigObserver);
-        $kernel->pushMiddleware(ConfigMiddleware::class);
+        Config::observe(new ModelCache);
+        $kernel->pushMiddleware(StoreHandle::class);
         $this->publishAsses();
 
         $config = new Repository(config()->all());
