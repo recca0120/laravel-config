@@ -2,11 +2,11 @@
 
 namespace Recca0120\Config;
 
-use Cache;
-use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Config\Repository as BaseRepository;
+use Illuminate\Contracts\Config\Repository as RepositoryContract;
 use Illuminate\Database\QueryException;
 
-class Repository extends ConfigRepository
+class Repository extends BaseRepository
 {
     protected $config;
 
@@ -16,18 +16,19 @@ class Repository extends ConfigRepository
 
     protected $isDirty = false;
 
-    public function __construct(ConfigRepository $config = null)
+    public function __construct(RepositoryContract $config = null)
     {
         if ($config !== null) {
-            $this->changed = Cache::rememberForever($this->getCacheKey(), function () {
-                $result = [];
-                try {
+            $cacheKey = $this->getCacheKey();
+            try {
+                $this->changed = app('cache')->rememberForever($cacheKey, function () {
                     return Config::all()->pluck('value', 'key')->toArray();
-                } catch (QueryException $e) {
-                }
-
-                return $result;
-            });
+                });
+            } catch (QueryException $e) {
+                // if (app('cache')->has($cacheKey) === true) {
+                //     app('cache')->forget($cacheKey);
+                // }
+            }
             $config->set($this->changed);
             $this->items = $config->all();
             $this->config = $config;
@@ -55,10 +56,10 @@ class Repository extends ConfigRepository
         return md5(static::class);
     }
 
-    public function getDirty()
+    public function getChanged()
     {
         if ($this->isDirty === false) {
-            return false;
+            return [];
         }
 
         return array_dot($this->changed);

@@ -11,9 +11,7 @@ class StoreHandle
     public function handle($request, Closure $next)
     {
         $response = $next($request);
-        $config = config();
-        $changed = $config->getDirty();
-
+        $changed = config()->getChanged();
         if (empty($changed) === false) {
             Config::truncate();
             DB::transaction(function () use ($changed) {
