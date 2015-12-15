@@ -4,11 +4,12 @@ namespace Recca0120\Config;
 
 use Illuminate\Config\Repository as BaseRepository;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Database\QueryException;
+
+// use Illuminate\Database\QueryException;
 
 class Repository extends BaseRepository
 {
-    protected $config;
+    protected $config = null;
 
     protected $backup = [];
 
@@ -16,23 +17,40 @@ class Repository extends BaseRepository
 
     protected $isDirty = false;
 
-    public function __construct(RepositoryContract $config = null)
+    public function __construct(array $items = [], RepositoryContract $config = null)
     {
-        if ($config !== null) {
-            $cacheKey = $this->getCacheKey();
-            try {
-                $this->changed = app('cache')->rememberForever($cacheKey, function () {
-                    return Config::all()->pluck('value', 'key')->toArray();
-                });
-            } catch (QueryException $e) {
-                // if (app('cache')->has($cacheKey) === true) {
-                //     app('cache')->forget($cacheKey);
-                // }
-            }
-            $config->set($this->changed);
-            $this->items = $config->all();
-            $this->config = $config;
+        parent::__construct($items);
+
+        if ($config == null) {
+            return;
         }
+
+        $this->config = $config;
+        $cacheKey = $this->getCacheKey();
+        $cache = json_decode(app('cache')->rememberForever($cacheKey, function () use ($items) {
+            $changed = [];
+            foreach (Config::all() as $model) {
+                $value = $model->value;
+                switch ($value) {
+                    case 'true':
+                        $value = true;
+                        break;
+                    case 'false':
+                        $value = false;
+                        break;
+                }
+                array_set($changed, $model->key, $value);
+                array_set($items, $model->key, $value);
+            }
+
+            return json_encode([
+                'changed' => $changed,
+                'items' => $items,
+            ]);
+        }), true);
+
+        $this->changed = $cache['changed'];
+        $this->items = $cache['items'];
     }
 
     public function set($key, $value = null)
@@ -43,12 +61,28 @@ class Repository extends BaseRepository
             }
         } else {
             $original = $this->get($key);
+            $value = $this->stringValue($value, $key);
             if ($value !== $original) {
                 $this->isDirty = true;
                 array_set($this->changed, $key, $value);
                 array_set($this->items, $key, $value);
             }
         }
+    }
+
+    protected function stringValue($value, $key = '')
+    {
+        if ($value === true || trim(strtolower($value)) === 'true') {
+            $value = 'true';
+        } elseif ($value === false || trim(strtolower($value)) === 'false') {
+            $vaue = 'false';
+        } elseif ($value === '') {
+            if ($this->config !== null && $this->config->get($key) === null) {
+                $value = null;
+            }
+        }
+
+        return $value;
     }
 
     public function getCacheKey()

@@ -33,7 +33,7 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton(RepositoryContract::class, function ($app) {
             Config::observe(new CacheHandle);
             $config = $app['config'];
-            $config = new Repository($config);
+            $config = new Repository($config->all(), $config);
             date_default_timezone_set($config->get('app.timezone'));
 
             return $config;
