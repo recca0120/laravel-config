@@ -27,7 +27,7 @@ class Repository extends BaseRepository
 
         $this->config = $config;
         $cacheKey = $this->getCacheKey();
-        $cache = json_decode(app('cache')->rememberForever($cacheKey, function () use ($items) {
+        $cache = json_decode(app('cache')->driver('file')->rememberForever($cacheKey, function () use ($items) {
             $changed = [];
             foreach (Config::all() as $model) {
                 $value = $model->value;
@@ -72,7 +72,11 @@ class Repository extends BaseRepository
 
     protected function stringValue($value, $key = '')
     {
-        if ($value === true || trim(strtolower($value)) === 'true') {
+        if (is_array($value) === true) {
+            foreach ($value as $k => $v) {
+                $value[$k] = $this->stringValue($v, $key.'.'.$k);
+            }
+        } elseif ($value === true || trim(strtolower($value)) === 'true') {
             $value = 'true';
         } elseif ($value === false || trim(strtolower($value)) === 'false') {
             $vaue = 'false';

@@ -16,7 +16,6 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->publishAsses();
         $kernel->pushMiddleware(StoreHandle::class);
-
         $this->app['config'] = $this->app->make(RepositoryContract::class);
     }
 
