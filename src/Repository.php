@@ -2,10 +2,9 @@
 
 namespace Recca0120\Config;
 
+use Cache;
 use Illuminate\Config\Repository as BaseRepository;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
-
-// use Illuminate\Database\QueryException;
 
 class Repository extends BaseRepository
 {
@@ -26,31 +25,15 @@ class Repository extends BaseRepository
         }
 
         $this->config = $config;
-        $cacheKey = $this->getCacheKey();
-        $cache = json_decode(app('cache')->driver('file')->rememberForever($cacheKey, function () use ($items) {
-            $changed = [];
-            foreach (Config::all() as $model) {
-                $value = $model->value;
-                switch ($value) {
-                    case 'true':
-                        $value = true;
-                        break;
-                    case 'false':
-                        $value = false;
-                        break;
-                }
-                array_set($changed, $model->key, $value);
-                array_set($items, $model->key, $value);
-            }
 
-            return json_encode([
-                'changed' => $changed,
-                'items' => $items,
-            ]);
-        }), true);
+        $changed = Cache::driver('file')->rememberForever(Config::cacheKey(), function () {
+            return Config::all()->pluck('value', 'key')->toArray();
+        });
 
-        $this->changed = $cache['changed'];
-        $this->items = $cache['items'];
+        foreach ($changed as $key => $value) {
+            array_set($this->changed, $key, $value);
+            array_set($this->items, $key, $value);
+        }
     }
 
     public function set($key, $value = null)
@@ -61,7 +44,7 @@ class Repository extends BaseRepository
             }
         } else {
             $original = $this->get($key);
-            $value = $this->stringValue($value, $key);
+            $value = $this->checkValue($value, $key);
             if ($value !== $original) {
                 $this->isDirty = true;
                 array_set($this->changed, $key, $value);
@@ -70,16 +53,12 @@ class Repository extends BaseRepository
         }
     }
 
-    protected function stringValue($value, $key = '')
+    protected function checkValue($value, $key = '')
     {
         if (is_array($value) === true) {
             foreach ($value as $k => $v) {
-                $value[$k] = $this->stringValue($v, $key.'.'.$k);
+                $value[$k] = $this->checkValue($v, $key.'.'.$k);
             }
-        } elseif ($value === true || trim(strtolower($value)) === 'true') {
-            $value = 'true';
-        } elseif ($value === false || trim(strtolower($value)) === 'false') {
-            $vaue = 'false';
         } elseif ($value === '') {
             if ($this->config !== null && $this->config->get($key) === null) {
                 $value = null;
@@ -87,11 +66,6 @@ class Repository extends BaseRepository
         }
 
         return $value;
-    }
-
-    public function getCacheKey()
-    {
-        return md5(static::class);
     }
 
     public function getChanged()
