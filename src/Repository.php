@@ -3,6 +3,7 @@
 namespace Recca0120\Config;
 
 use Cache;
+use Closure;
 use Illuminate\Config\Repository as BaseRepository;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 
@@ -29,7 +30,6 @@ class Repository extends BaseRepository
         $changed = Cache::driver('file')->rememberForever(Config::cacheKey(), function () {
             return Config::all()->pluck('value', 'key')->toArray();
         });
-
         foreach ($changed as $key => $value) {
             array_set($this->changed, $key, $value);
             array_set($this->items, $key, $value);
@@ -42,24 +42,27 @@ class Repository extends BaseRepository
             foreach ($key as $innerKey => $innerValue) {
                 $this->set($innerKey, $innerValue);
             }
+        } elseif (is_array($value) === true) {
+            foreach ($value as $innerKey => $innerValue) {
+                $this->set($key.'.'.$innerKey, $innerValue);
+            }
         } else {
             $original = $this->get($key);
             $value = $this->checkValue($value, $key);
             if ($value !== $original) {
+                array_set($this->items, $key, $value);
+                if ($value instanceof Closure) {
+                    return;
+                }
                 $this->isDirty = true;
                 array_set($this->changed, $key, $value);
-                array_set($this->items, $key, $value);
             }
         }
     }
 
     protected function checkValue($value, $key = '')
     {
-        if (is_array($value) === true) {
-            foreach ($value as $k => $v) {
-                $value[$k] = $this->checkValue($v, $key.'.'.$k);
-            }
-        } elseif ($value === '') {
+        if ($value === '') {
             if ($this->config !== null && $this->config->get($key) === null) {
                 $value = null;
             }

@@ -11,11 +11,11 @@ class ServiceProvider extends BaseServiceProvider
 {
     protected $kernel;
 
-    public function boot(Kernel $kernel)
+    public function boot(Kernel $kernel, RepositoryContract $config)
     {
         $this->handlePublishes();
         $kernel->pushMiddleware(StoreHandle::class);
-        $this->app['config'] = $this->app->make(RepositoryContract::class);
+        $this->app->instance('config', $config);
     }
 
     public function handlePublishes()
@@ -27,9 +27,8 @@ class ServiceProvider extends BaseServiceProvider
 
     public function register()
     {
-        // $config = $this->app->make(RepositoryContract::class);
-        $this->app->singleton(RepositoryContract::class, function ($app) {
-            $config = $app['config'];
+        $config = $this->app->make(RepositoryContract::class);
+        $this->app->singleton(RepositoryContract::class, function ($app) use ($config) {
             $config = new Repository($config->all(), $config);
             date_default_timezone_set($config->get('app.timezone'));
 
