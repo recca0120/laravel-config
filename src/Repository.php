@@ -83,7 +83,7 @@ class Repository extends BaseRepository
     public function backup()
     {
         $this->backup = [
-            'items' => $this->items,
+            'items'   => $this->items,
             'changed' => $this->changed,
             'isDirty' => $this->isDirty,
         ];

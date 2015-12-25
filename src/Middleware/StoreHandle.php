@@ -20,7 +20,7 @@ class StoreHandle
                         return;
                     }
                     Config::create([
-                        'key' => $key,
+                        'key'   => $key,
                         'value' => $value,
                     ]);
                 });
