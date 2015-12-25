@@ -11,11 +11,13 @@ class ServiceProvider extends BaseServiceProvider
 {
     protected $kernel;
 
-    public function boot(Kernel $kernel, RepositoryContract $config)
+    public function boot(Kernel $kernel)
     {
         $this->handlePublishes();
         $kernel->pushMiddleware(StoreHandle::class);
-        $this->app->instance('config', $config);
+        $this->app->booted(function ($app) {
+            $app->instance('config', $app->make(RepositoryContract::class));
+        });
     }
 
     public function handlePublishes()
