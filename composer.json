@@ -11,10 +11,19 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/config": "~5.0"
+        "illuminate/cache": "~5.0",
+        "illuminate/config": "~5.0",
+        "illuminate/container": "~5.0",
+        "illuminate/contracts": "~5.0",
+        "illuminate/database": "~5.0",
+        "illuminate/support": "~5.0",
+        "nesbot/carbon": "~1.20",
+        "symfony/http-kernel": "~2.7|~3.0"
     },
     "require-dev": {
-        "nesbot/carbon": "~1.20",
+        "illuminate/routing": "~5.0",
+        "illuminate/http": "~5.0",
+        "illuminate/view": "~5.0",
         "mockery/mockery": "~0.9.2",
         "phpunit/phpunit": "~4.1"
     },

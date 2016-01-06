@@ -4,36 +4,80 @@ namespace Recca0120\Config;
 
 use Cache;
 use Closure;
+use DB;
 use Illuminate\Config\Repository as BaseRepository;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
+use Illuminate\Support\Arr;
 
 class Repository extends BaseRepository
 {
-    protected $config = null;
+    protected $model;
 
-    protected $backup = [];
-
-    protected $changed = [];
+    protected $config;
 
     protected $isDirty = false;
 
+    protected $changed = [];
+
+    protected $cacheForget = false;
+
+    protected static $booted = false;
+
     public function __construct(array $items = [], RepositoryContract $config = null)
     {
-        parent::__construct($items);
-
-        if ($config == null) {
-            return;
-        }
-
         $this->config = $config;
-
-        $changed = Cache::driver('file')->rememberForever(Config::cacheKey(), function () {
+        parent::__construct($items);
+        $changed = Cache::driver('file')->rememberForever($this->cacheKey(), function () {
             return Config::all()->pluck('value', 'key')->toArray();
         });
         foreach ($changed as $key => $value) {
-            array_set($this->changed, $key, $value);
-            array_set($this->items, $key, $value);
+            Arr::set($this->changed, $key, $value);
+            Arr::set($this->items, $key, $value);
         }
+
+        Config::saved(function () {
+            $this->cacheForget();
+        });
+
+        Config::deleted(function () {
+            $this->cacheForget();
+        });
+    }
+
+    protected function cacheKey()
+    {
+        return md5(static::class);
+    }
+
+    protected function cacheForget()
+    {
+        if ($this->cacheForget === true) {
+            return;
+        }
+        Cache::driver('file')->forget($this->cacheKey());
+        $this->cacheForget = true;
+    }
+
+    public function onKernelHandled()
+    {
+        if ($this->isDirty === true && empty($this->changed) === false) {
+            Config::truncate();
+            DB::transaction(function () {
+                $changed = array_dot($this->changed);
+                array_walk($changed, function (&$value, $key) {
+                    if ($value === null) {
+                        return;
+                    }
+                    Config::create([
+                        'key'   => $key,
+                        'value' => $value,
+                    ])->save();
+                });
+            });
+            $this->isDirty = false;
+        }
+
+        return $this->changed;
     }
 
     public function set($key, $value = null)
@@ -50,12 +94,12 @@ class Repository extends BaseRepository
             $original = $this->get($key);
             $value = $this->checkValue($value, $key);
             if ($value !== $original) {
-                array_set($this->items, $key, $value);
+                Arr::set($this->items, $key, $value);
                 if ($value instanceof Closure) {
                     return;
                 }
                 $this->isDirty = true;
-                array_set($this->changed, $key, $value);
+                Arr::set($this->changed, $key, $value);
             }
         }
     }
@@ -71,33 +115,8 @@ class Repository extends BaseRepository
         return $value;
     }
 
-    public function getChanged()
+    public function __call($method, $arguments)
     {
-        if ($this->isDirty === false) {
-            return [];
-        }
-
-        return array_dot($this->changed);
-    }
-
-    public function backup()
-    {
-        $this->backup = [
-            'items'   => $this->items,
-            'changed' => $this->changed,
-            'isDirty' => $this->isDirty,
-        ];
-
-        return $this;
-    }
-
-    public function restore()
-    {
-        $this->items = $this->backup['items'];
-        $this->changed = $this->backup['changed'];
-        $this->isDirty = $this->backup['isDirty'];
-        $this->backup = [];
-
-        return $this;
+        return call_user_func($this->config, $arguments);
     }
 }
