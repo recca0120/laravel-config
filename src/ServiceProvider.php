@@ -3,20 +3,18 @@
 namespace Recca0120\Config;
 
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Recca0120\Config\Middleware\StoreHandle;
 
 class ServiceProvider extends BaseServiceProvider
 {
     protected $kernel;
 
-    public function boot(Kernel $kernel)
+    public function boot()
     {
         $this->handlePublishes();
-        $kernel->pushMiddleware(StoreHandle::class);
         $this->app->booted(function ($app) {
-            $app->instance('config', $app->make(RepositoryContract::class));
+            $config = $app->make(RepositoryContract::class);
+            $app->instance('config', $config);
         });
     }
 
@@ -33,6 +31,9 @@ class ServiceProvider extends BaseServiceProvider
         $this->app->singleton(RepositoryContract::class, function ($app) use ($config) {
             $config = new Repository($config->all(), $config);
             date_default_timezone_set($config->get('app.timezone'));
+            $app['events']->listen('kernel.handled', function ($request, $response) use ($config) {
+                $config->onKernelHandled();
+            });
 
             return $config;
         });
