@@ -25,9 +25,13 @@ class Repository extends BaseRepository
 
     public function __construct(array $items = [], RepositoryContract $config = null, CacheFactory $cacheFactory = null, Dispatcher $dispatcher = null)
     {
-        parent::__construct($items);
         $this->config = $config;
         $this->cacheFactory = $cacheFactory;
+
+        if (count($items) === 0) {
+            $items = $config->all();
+        }
+        parent::__construct($items);
 
         if ($this->cacheFactory !== null) {
             $changed = $this->cacheFactory->driver('file')->rememberForever($this->cacheKey(), function () {
