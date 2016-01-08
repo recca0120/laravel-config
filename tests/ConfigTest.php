@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Capsule\Manager as Connection;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Events\Dispatcher;
+use Mockery as m;
 use Recca0120\Config\Config;
 use Recca0120\Config\Repository;
 
@@ -28,19 +30,25 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
+        m::close();
         $this->schema()->drop('configs');
     }
 
     public function testConfigChanged()
     {
-        $config = new Repository([]);
+        $cacheFactory = new CacheFactory();
+        $dispatcher = new Dispatcher();
+        $config = new Repository([], null, $cacheFactory, $dispatcher);
         $data = [
             'a' => 'd',
             'b' => 'e',
             'c' => 'f',
         ];
         $config->set($data);
-        $this->assertEquals($config->onKernelHandled(), Config::all()->pluck('value', 'key')->toArray());
+        $this->assertEquals(
+            $dispatcher->fire('kernel.handled', ['', ''], true),
+            Config::all()->pluck('value', 'key')->toArray()
+        );
     }
 
     /**
@@ -57,13 +65,18 @@ class ConfigTest extends PHPUnit_Framework_TestCase
     }
 }
 
-class Cache
+class CacheFactory implements \Illuminate\Contracts\Cache\Factory
 {
     protected $key;
 
-    public static function driver()
+    public function store($name = null)
     {
-        return new static();
+        return $this;
+    }
+
+    public function driver()
+    {
+        return $this;
     }
 
     public function rememberForever($key, \Closure $handle)
@@ -76,13 +89,5 @@ class Cache
     public function forget($key)
     {
         return $key = $key;
-    }
-}
-
-class DB
-{
-    public static function transaction(\Closure $handle)
-    {
-        $handle();
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Recca0120\Config;
 
-use Cache;
 use Closure;
-use DB;
 use Illuminate\Config\Repository as BaseRepository;
+use Illuminate\Contracts\Cache\Factory as CacheFactory;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class Repository extends BaseRepository
@@ -19,20 +19,33 @@ class Repository extends BaseRepository
 
     protected $changed = [];
 
+    protected $cacheFactory;
+
     protected $cacheForget = false;
 
-    protected static $booted = false;
-
-    public function __construct(array $items = [], RepositoryContract $config = null)
+    public function __construct(array $items = [], RepositoryContract $config = null, CacheFactory $cacheFactory = null, Dispatcher $dispatcher = null)
     {
-        $this->config = $config;
         parent::__construct($items);
-        $changed = Cache::driver('file')->rememberForever($this->cacheKey(), function () {
-            return Config::all()->pluck('value', 'key')->toArray();
-        });
+        $this->config = $config;
+        $this->cacheFactory = $cacheFactory;
+
+        if ($this->cacheFactory !== null) {
+            $changed = $this->cacheFactory->driver('file')->rememberForever($this->cacheKey(), function () {
+                return Config::all()->pluck('value', 'key')->toArray();
+            });
+        } else {
+            $changed = Config::all()->pluck('value', 'key')->toArray();
+        }
+
         foreach ($changed as $key => $value) {
             Arr::set($this->changed, $key, $value);
             Arr::set($this->items, $key, $value);
+        }
+
+        if ($dispatcher !== null) {
+            $dispatcher->listen('kernel.handled', function ($request, $response) {
+                return $this->onKernelHandled();
+            });
         }
 
         Config::saved(function () {
@@ -54,15 +67,15 @@ class Repository extends BaseRepository
         if ($this->cacheForget === true) {
             return;
         }
-        Cache::driver('file')->forget($this->cacheKey());
+        $this->cacheFactory->driver('file')->forget($this->cacheKey());
         $this->cacheForget = true;
     }
 
     public function onKernelHandled()
     {
         if ($this->isDirty === true && empty($this->changed) === false) {
-            Config::truncate();
-            DB::transaction(function () {
+            $model = Config::truncate();
+            $model->getConnection()->transaction(function () {
                 $changed = array_dot($this->changed);
                 array_walk($changed, function (&$value, $key) {
                     if ($value === null) {
@@ -113,10 +126,5 @@ class Repository extends BaseRepository
         }
 
         return $value;
-    }
-
-    public function __call($method, $arguments)
-    {
-        return call_user_func($this->config, $arguments);
     }
 }
