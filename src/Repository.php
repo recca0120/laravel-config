@@ -5,37 +5,74 @@ namespace Recca0120\Config;
 use Closure;
 use Illuminate\Config\Repository as BaseRepository;
 use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Contracts\Cache\Repository as CacheRepositoryContract;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class Repository extends BaseRepository
 {
-    protected $model;
-
+    /**
+     * origin \Illuminate\Contracts\Config\Repository.
+     *
+     * @var \Illuminate\Contracts\Config\Repository
+     */
     protected $config;
 
-    protected $isDirty = false;
+    /**
+     * is data changed.
+     *
+     * @var bool
+     */
+    protected $dirty = false;
 
+    /**
+     * data changed.
+     *
+     * @var array
+     */
     protected $changed = [];
 
-    protected $cacheFactory;
+    /**
+     * cache is cleaned.
+     * @var [type]
+     */
+    protected $cacheCleaned = false;
 
-    protected $cacheForget = false;
-
-    public function __construct(array $items = [], RepositoryContract $config = null, CacheFactory $cacheFactory = null, Dispatcher $dispatcher = null)
-    {
+    /**
+     * construct.
+     *
+     * @param array $items
+     * @param \Illuminate\Contracts\Config\Repository $config
+     * @param \Illuminate\Contracts\Cache\Factory $cacheFactory
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
+     */
+    public function __construct(
+        array $items = [],
+        RepositoryContract $config = null,
+        CacheFactory $cacheFactory = null,
+        Dispatcher $events = null
+    ) {
         $this->config = $config;
-        $this->cacheFactory = $cacheFactory;
-
         if (count($items) === 0) {
             $items = $config->all();
         }
+
         parent::__construct($items);
 
-        if ($this->cacheFactory !== null) {
-            $changed = $this->cacheFactory->driver('file')->rememberForever($this->cacheKey(), function () {
+        if ($cacheFactory !== null) {
+            $cacheKey = $this->cacheKey();
+            $cacheRepository = $cacheFactory->driver('file');
+            $changed = $cacheRepository->rememberForever($cacheKey, function () {
                 return Config::all()->pluck('value', 'key')->toArray();
+            });
+
+            Config::saved(function () use ($cacheRepository, $cacheKey) {
+                $this->forgetCache($cacheRepository, $cacheKey);
+            });
+
+            Config::deleted(function () use ($cacheRepository, $cacheKey) {
+                $this->forgetCache($cacheRepository, $cacheKey);
             });
         } else {
             $changed = Config::all()->pluck('value', 'key')->toArray();
@@ -46,38 +83,47 @@ class Repository extends BaseRepository
             Arr::set($this->items, $key, $value);
         }
 
-        if ($dispatcher !== null) {
-            $dispatcher->listen('kernel.handled', function ($request, $response) {
+        if ($events !== null) {
+            $events->listen('kernel.handled', function ($request, $response) {
                 return $this->onKernelHandled();
             });
         }
-
-        Config::saved(function () {
-            $this->cacheForget();
-        });
-
-        Config::deleted(function () {
-            $this->cacheForget();
-        });
     }
 
+    /**
+     * get cache key.
+     *
+     * @return string
+     */
     protected function cacheKey()
     {
         return md5(static::class);
     }
 
-    protected function cacheForget()
+    /**
+     * clear cache.
+     *
+     * @param  \Illuminate\Contracts\Cache\Repository $cacheRepository [description]
+     * @param  string $cacheKey
+     * @return void
+     */
+    protected function forgetCache(CacheRepositoryContract $cacheRepository, $cacheKey)
     {
-        if ($this->cacheForget === true) {
+        if ($this->cacheCleaned === true) {
             return;
         }
-        $this->cacheFactory->driver('file')->forget($this->cacheKey());
-        $this->cacheForget = true;
+        $cacheRepository->forget($cacheKey);
+        $this->cacheCleaned = true;
     }
 
+    /**
+     * trigger when event kernel.handled.
+     *
+     * @return void
+     */
     public function onKernelHandled()
     {
-        if ($this->isDirty === true && empty($this->changed) === false) {
+        if ($this->dirty === true && empty($this->changed) === false) {
             $model = Config::truncate();
             $model->getConnection()->transaction(function () {
                 $changed = array_dot($this->changed);
@@ -91,12 +137,19 @@ class Repository extends BaseRepository
                     ])->save();
                 });
             });
-            $this->isDirty = false;
+            $this->dirty = false;
         }
 
         return $this->changed;
     }
 
+    /**
+     * Set a given configuration value.
+     *
+     * @param  array|string  $key
+     * @param  mixed   $value
+     * @return void
+     */
     public function set($key, $value = null)
     {
         if (is_array($key)) {
@@ -115,12 +168,19 @@ class Repository extends BaseRepository
                 if ($value instanceof Closure) {
                     return;
                 }
-                $this->isDirty = true;
+                $this->dirty = true;
                 Arr::set($this->changed, $key, $value);
             }
         }
     }
 
+    /**
+     * check value.
+     *
+     * @param  mixed $value
+     * @param  string $key
+     * @return mixed
+     */
     protected function checkValue($value, $key = '')
     {
         if ($value === '') {
