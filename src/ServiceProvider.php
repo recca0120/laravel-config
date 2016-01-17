@@ -6,10 +6,11 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class ServiceProvider extends BaseServiceProvider
 {
-    protected $kernel;
-
-    protected $config;
-
+    /**
+     * Bootstrap any application services.
+     *
+     * @return void
+     */
     public function boot()
     {
         $this->handlePublishes();
@@ -20,6 +21,11 @@ class ServiceProvider extends BaseServiceProvider
         });
     }
 
+    /**
+     * handle publishes.
+     *
+     * @return void
+     */
     public function handlePublishes()
     {
         $this->publishes([
@@ -27,10 +33,20 @@ class ServiceProvider extends BaseServiceProvider
         ], 'migrations');
     }
 
+    /**
+     * Register any application services.
+     *
+     * @return void
+     */
     public function register()
     {
     }
 
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
     public function provides()
     {
         return ['config'];
