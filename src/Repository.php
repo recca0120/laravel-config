@@ -35,6 +35,7 @@ class Repository extends BaseRepository
 
     /**
      * cache is cleaned.
+     *
      * @var [type]
      */
     protected $cacheCleaned = false;
@@ -42,9 +43,9 @@ class Repository extends BaseRepository
     /**
      * construct.
      *
-     * @param array $items
+     * @param array                                   $items
      * @param \Illuminate\Contracts\Config\Repository $config
-     * @param \Illuminate\Contracts\Cache\Factory $cacheFactory
+     * @param \Illuminate\Contracts\Cache\Factory     $cacheFactory
      * @param \Illuminate\Contracts\Events\Dispatcher $events
      */
     public function __construct(
@@ -103,8 +104,9 @@ class Repository extends BaseRepository
     /**
      * clear cache.
      *
-     * @param  \Illuminate\Contracts\Cache\Repository $cacheRepository [description]
-     * @param  string $cacheKey
+     * @param \Illuminate\Contracts\Cache\Repository $cacheRepository [description]
+     * @param string                                 $cacheKey
+     *
      * @return void
      */
     protected function forgetCache(CacheRepositoryContract $cacheRepository, $cacheKey)
@@ -146,8 +148,9 @@ class Repository extends BaseRepository
     /**
      * Set a given configuration value.
      *
-     * @param  array|string  $key
-     * @param  mixed   $value
+     * @param array|string $key
+     * @param mixed        $value
+     *
      * @return void
      */
     public function set($key, $value = null)
@@ -177,8 +180,9 @@ class Repository extends BaseRepository
     /**
      * check value.
      *
-     * @param  mixed $value
-     * @param  string $key
+     * @param mixed  $value
+     * @param string $key
+     *
      * @return mixed
      */
     protected function checkValue($value, $key = '')
