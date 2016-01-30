@@ -14,7 +14,7 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->handlePublishes();
-        $this->app->booted(function ($app) {
+        $this->app->booted(function () {
             $config = $this->app->make(Repository::class, [[]]);
             $this->app->instance('config', $config);
             date_default_timezone_set($config->get('app.timezone'));

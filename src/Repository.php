@@ -85,7 +85,7 @@ class Repository extends BaseRepository
         }
 
         if ($events !== null) {
-            $events->listen('kernel.handled', function ($request, $response) {
+            $events->listen('kernel.handled', function () {
                 return $this->onKernelHandled();
             });
         }
