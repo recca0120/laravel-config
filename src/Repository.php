@@ -36,14 +36,14 @@ class Repository extends BaseRepository
     /**
      * cache is cleaned.
      *
-     * @var [type]
+     * @var bool
      */
     protected $cacheCleaned = false;
 
     /**
      * construct.
      *
-     * @param array                                   $items
+     * @param array $items
      * @param \Illuminate\Contracts\Config\Repository $config
      * @param \Illuminate\Contracts\Cache\Factory     $cacheFactory
      * @param \Illuminate\Contracts\Events\Dispatcher $events
@@ -55,7 +55,7 @@ class Repository extends BaseRepository
         Dispatcher $events = null
     ) {
         $this->config = $config;
-        if (count($items) === 0) {
+        if ($config !== null && count($items) === 0) {
             $items = $config->all();
         }
 
@@ -65,7 +65,7 @@ class Repository extends BaseRepository
             $cacheKey = $this->cacheKey();
             $cacheRepository = $cacheFactory->driver('file');
             $changed = $cacheRepository->rememberForever($cacheKey, function () {
-                $this->loadConfig();
+                return $this->loadConfig();
             });
 
             Config::saved(function () use ($cacheRepository, $cacheKey) {
@@ -113,8 +113,8 @@ class Repository extends BaseRepository
     /**
      * clear cache.
      *
-     * @param \Illuminate\Contracts\Cache\Repository $cacheRepository [description]
-     * @param string                                 $cacheKey
+     * @param \Illuminate\Contracts\Cache\Repository $cacheRepository
+     * @param string $cacheKey
      *
      * @return void
      */

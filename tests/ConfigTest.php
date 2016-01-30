@@ -1,8 +1,6 @@
 <?php
 
-use Illuminate\Database\Capsule\Manager as Connection;
-use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Events\Dispatcher;
+use Illuminate\Cache\CacheManager as BaseCacheManager;
 use Mockery as m;
 use Recca0120\Config\Config;
 use Recca0120\Config\Repository;
@@ -11,34 +9,22 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        Eloquent::unguard();
-        $connection = new Connection();
-        $connection->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-        ]);
-        $connection->bootEloquent();
-        $connection->setAsGlobal();
-
-        $this->schema()->create('configs', function ($table) {
-            $table->increments('id');
-            $table->string('key');
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+        $app = App::getInstance();
+        $app->migrate('up');
     }
 
     public function tearDown()
     {
         m::close();
-        $this->schema()->drop('configs');
+        $app = App::getInstance();
+        $app->migrate('down');
     }
 
-    public function testConfigChanged()
+    public function test_config_changed()
     {
-        $cacheFactory = new CacheFactory();
-        $dispatcher = new Dispatcher();
-        $config = new Repository([], null, $cacheFactory, $dispatcher);
+        $app = App::getInstance();
+        $cacheFactory = new CacheManager($app);
+        $config = new Repository([], null, $cacheFactory, $app['events']);
         $data = [
             'a' => 'd',
             'b' => 'e',
@@ -46,48 +32,16 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         ];
         $config->set($data);
         $this->assertEquals(
-            $dispatcher->fire('kernel.handled', ['', ''], true),
+            $app['events']->fire('kernel.handled', ['', ''], true),
             Config::all()->pluck('value', 'key')->toArray()
         );
     }
-
-    /**
-     * Schema Helpers.
-     */
-    protected function schema()
-    {
-        return $this->connection()->getSchemaBuilder();
-    }
-
-    protected function connection()
-    {
-        return Eloquent::getConnectionResolver()->connection();
-    }
 }
 
-class CacheFactory implements \Illuminate\Contracts\Cache\Factory
+class CacheManager extends BaseCacheManager
 {
-    protected $key;
-
-    public function store($name = null)
+    public function driver($driver = null)
     {
-        return $this;
-    }
-
-    public function driver()
-    {
-        return $this;
-    }
-
-    public function rememberForever($key, \Closure $handle)
-    {
-        $this->key = $key;
-
-        return $handle();
-    }
-
-    public function forget($key)
-    {
-        return $key = $key;
+        return $this->createArrayDriver();
     }
 }
