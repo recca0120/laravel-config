@@ -43,7 +43,7 @@ class Repository extends BaseRepository
     /**
      * construct.
      *
-     * @param array $items
+     * @param array                                   $items
      * @param \Illuminate\Contracts\Config\Repository $config
      * @param \Illuminate\Contracts\Cache\Factory     $cacheFactory
      * @param \Illuminate\Contracts\Events\Dispatcher $events
@@ -93,6 +93,7 @@ class Repository extends BaseRepository
 
     /**
      * load config.
+     *
      * @return mixed
      */
     protected function loadConfig()
@@ -114,7 +115,7 @@ class Repository extends BaseRepository
      * clear cache.
      *
      * @param \Illuminate\Contracts\Cache\Repository $cacheRepository
-     * @param string $cacheKey
+     * @param string                                 $cacheKey
      *
      * @return void
      */
@@ -147,6 +148,7 @@ class Repository extends BaseRepository
 
     /**
      * save to database.
+     *
      * @return void
      */
     public function saveToDatabase()
