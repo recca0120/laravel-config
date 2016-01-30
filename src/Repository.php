@@ -65,7 +65,7 @@ class Repository extends BaseRepository
             $cacheKey = $this->cacheKey();
             $cacheRepository = $cacheFactory->driver('file');
             $changed = $cacheRepository->rememberForever($cacheKey, function () {
-                return Config::all()->pluck('value', 'key')->toArray();
+                $this->loadConfig();
             });
 
             Config::saved(function () use ($cacheRepository, $cacheKey) {
@@ -89,6 +89,15 @@ class Repository extends BaseRepository
                 return $this->onKernelHandled();
             });
         }
+    }
+
+    /**
+     * load config.
+     * @return mixed
+     */
+    protected function loadConfig()
+    {
+        return Config::all()->pluck('value', 'key')->toArray();
     }
 
     /**
@@ -128,21 +137,30 @@ class Repository extends BaseRepository
         if ($this->dirty === true && empty($this->changed) === false) {
             $model = Config::truncate();
             $model->getConnection()->transaction(function () {
-                $changed = array_dot($this->changed);
-                array_walk($changed, function (&$value, $key) {
-                    if ($value === null) {
-                        return;
-                    }
-                    Config::create([
-                        'key'   => $key,
-                        'value' => $value,
-                    ])->save();
-                });
+                $this->saveToDatabase();
             });
             $this->dirty = false;
         }
 
         return $this->changed;
+    }
+
+    /**
+     * save to database.
+     * @return void
+     */
+    public function saveToDatabase()
+    {
+        $changed = array_dot($this->changed);
+        array_walk($changed, function (&$value, $key) {
+            if ($value === null) {
+                return;
+            }
+            Config::create([
+                'key'   => $key,
+                'value' => $value,
+            ])->save();
+        });
     }
 
     /**
