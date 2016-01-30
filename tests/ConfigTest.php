@@ -1,93 +1,53 @@
 <?php
 
-use Illuminate\Database\Capsule\Manager as Connection;
-use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Events\Dispatcher;
 use Mockery as m;
 use Recca0120\Config\Config;
 use Recca0120\Config\Repository;
 
 class ConfigTest extends PHPUnit_Framework_TestCase
 {
+    use Laravel;
+
     public function setUp()
     {
-        Eloquent::unguard();
-        $connection = new Connection();
-        $connection->addConnection([
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-        ]);
-        $connection->bootEloquent();
-        $connection->setAsGlobal();
-
-        $this->schema()->create('configs', function ($table) {
-            $table->increments('id');
-            $table->string('key');
-            $table->text('value')->nullable();
-            $table->timestamps();
-        });
+        $this->migrate('up');
     }
 
     public function tearDown()
     {
         m::close();
-        $this->schema()->drop('configs');
+        $this->migrate('down');
+        $this->destroyApplication();
     }
 
-    public function testConfigChanged()
+    public function test_config_changed()
     {
-        $cacheFactory = new CacheFactory();
-        $dispatcher = new Dispatcher();
-        $config = new Repository([], null, $cacheFactory, $dispatcher);
+        $app = $this->createApplication();
+        $app['events'] = $app['events']
+            ->shouldReceive('listen')
+            ->mock();
+
         $data = [
-            'a' => 'd',
-            'b' => 'e',
-            'c' => 'f',
+            'a' => 'a',
+            'b' => 'b',
+            'c' => 'c',
+            'd' => 'd',
         ];
+
+        $config = m::mock('\Illuminate\Contracts\Config\Repository');
+        $cacheFactory = m::mock('\Illuminate\Contracts\Cache\Factory')
+            ->shouldReceive('driver')->with('file')->andReturnSelf()
+            ->shouldReceive('rememberForever')->andReturn([])
+            ->mock();
+
+        $config = new Repository([], null, $cacheFactory, $app['events']);
+
         $config->set($data);
+        $config->onKernelHandled();
+
         $this->assertEquals(
-            $dispatcher->fire('kernel.handled', ['', ''], true),
-            Config::all()->pluck('value', 'key')->toArray()
+            Config::all()->pluck('value', 'key')->toArray(),
+            $data
         );
-    }
-
-    /**
-     * Schema Helpers.
-     */
-    protected function schema()
-    {
-        return $this->connection()->getSchemaBuilder();
-    }
-
-    protected function connection()
-    {
-        return Eloquent::getConnectionResolver()->connection();
-    }
-}
-
-class CacheFactory implements \Illuminate\Contracts\Cache\Factory
-{
-    protected $key;
-
-    public function store($name = null)
-    {
-        return $this;
-    }
-
-    public function driver()
-    {
-        return $this;
-    }
-
-    public function rememberForever($key, \Closure $handle)
-    {
-        $this->key = $key;
-
-        return $handle();
-    }
-
-    public function forget($key)
-    {
-        return $key = $key;
     }
 }

@@ -4,20 +4,28 @@ namespace Recca0120\Config;
 
 use Closure;
 use Illuminate\Config\Repository as BaseRepository;
-use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Contracts\Cache\Factory as CacheFactoryContract;
 use Illuminate\Contracts\Cache\Repository as CacheRepositoryContract;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Container\Container as ContainerContract;
+use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Support\Arr;
 
 class Repository extends BaseRepository
 {
     /**
-     * origin \Illuminate\Contracts\Config\Repository.
+     * origin config.
      *
      * @var \Illuminate\Contracts\Config\Repository
      */
     protected $config;
+
+    /**
+     * app.
+     *
+     * @var \Illuminate\Contracts\Container\Container
+     */
+    protected $app;
 
     /**
      * is data changed.
@@ -36,7 +44,7 @@ class Repository extends BaseRepository
     /**
      * cache is cleaned.
      *
-     * @var [type]
+     * @var bool
      */
     protected $cacheCleaned = false;
 
@@ -51,11 +59,14 @@ class Repository extends BaseRepository
     public function __construct(
         array $items = [],
         RepositoryContract $config = null,
-        CacheFactory $cacheFactory = null,
-        Dispatcher $events = null
+        CacheFactoryContract $cacheFactory = null,
+        DispatcherContract $events = null,
+        ContainerContract $app = null
     ) {
         $this->config = $config;
-        if (count($items) === 0) {
+        $this->app = $app;
+
+        if ($config !== null && count($items) === 0) {
             $items = $config->all();
         }
 
@@ -65,7 +76,7 @@ class Repository extends BaseRepository
             $cacheKey = $this->cacheKey();
             $cacheRepository = $cacheFactory->driver('file');
             $changed = $cacheRepository->rememberForever($cacheKey, function () {
-                $this->loadConfig();
+                return $this->loadConfig();
             });
 
             Config::saved(function () use ($cacheRepository, $cacheKey) {
@@ -85,7 +96,7 @@ class Repository extends BaseRepository
         }
 
         if ($events !== null) {
-            $events->listen('kernel.handled', function ($request, $response) {
+            $events->listen('kernel.handled', function () {
                 return $this->onKernelHandled();
             });
         }
@@ -93,11 +104,14 @@ class Repository extends BaseRepository
 
     /**
      * load config.
+     *
      * @return mixed
      */
     protected function loadConfig()
     {
-        return Config::all()->pluck('value', 'key')->toArray();
+        return Config::all()
+            ->pluck('value', 'key')
+            ->toArray();
     }
 
     /**
@@ -113,7 +127,7 @@ class Repository extends BaseRepository
     /**
      * clear cache.
      *
-     * @param \Illuminate\Contracts\Cache\Repository $cacheRepository [description]
+     * @param \Illuminate\Contracts\Cache\Repository $cacheRepository
      * @param string                                 $cacheKey
      *
      * @return void
@@ -147,6 +161,7 @@ class Repository extends BaseRepository
 
     /**
      * save to database.
+     *
      * @return void
      */
     public function saveToDatabase()
@@ -161,6 +176,8 @@ class Repository extends BaseRepository
                 'value' => $value,
             ])->save();
         });
+
+        return $changed;
     }
 
     /**
@@ -212,5 +229,10 @@ class Repository extends BaseRepository
         }
 
         return $value;
+    }
+
+    public function swap()
+    {
+        return $this->app['config'] = $this->config;
     }
 }
