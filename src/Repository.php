@@ -4,20 +4,28 @@ namespace Recca0120\Config;
 
 use Closure;
 use Illuminate\Config\Repository as BaseRepository;
-use Illuminate\Contracts\Cache\Factory as CacheFactory;
+use Illuminate\Contracts\Cache\Factory as CacheFactoryContract;
 use Illuminate\Contracts\Cache\Repository as CacheRepositoryContract;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Container\Container as ContainerContract;
+use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Support\Arr;
 
 class Repository extends BaseRepository
 {
     /**
-     * origin \Illuminate\Contracts\Config\Repository.
+     * origin config.
      *
      * @var \Illuminate\Contracts\Config\Repository
      */
     protected $config;
+
+    /**
+     * app.
+     *
+     * @var \Illuminate\Contracts\Container\Container
+     */
+    protected $app;
 
     /**
      * is data changed.
@@ -51,10 +59,13 @@ class Repository extends BaseRepository
     public function __construct(
         array $items = [],
         RepositoryContract $config = null,
-        CacheFactory $cacheFactory = null,
-        Dispatcher $events = null
+        CacheFactoryContract $cacheFactory = null,
+        DispatcherContract $events = null,
+        ContainerContract $app = null
     ) {
         $this->config = $config;
+        $this->app = $app;
+
         if ($config !== null && count($items) === 0) {
             $items = $config->all();
         }
@@ -98,7 +109,9 @@ class Repository extends BaseRepository
      */
     protected function loadConfig()
     {
-        return Config::all()->pluck('value', 'key')->toArray();
+        return Config::all()
+            ->pluck('value', 'key')
+            ->toArray();
     }
 
     /**
@@ -163,6 +176,8 @@ class Repository extends BaseRepository
                 'value' => $value,
             ])->save();
         });
+
+        return $changed;
     }
 
     /**
@@ -214,5 +229,10 @@ class Repository extends BaseRepository
         }
 
         return $value;
+    }
+
+    public function swap()
+    {
+        return $this->app['config'] = $this->config;
     }
 }

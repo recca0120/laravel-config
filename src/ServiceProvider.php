@@ -2,6 +2,7 @@
 
 namespace Recca0120\Config;
 
+use Illuminate\Contracts\Config\Repository as ConfigRepositoryContract;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class ServiceProvider extends BaseServiceProvider
@@ -15,7 +16,7 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->handlePublishes();
         $this->app->booted(function () {
-            $config = $this->app->make(Repository::class, [[]]);
+            $config = $this->app->make(Repository::class);
             $this->app->instance('config', $config);
             date_default_timezone_set($config->get('app.timezone'));
         });
@@ -40,6 +41,11 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
+        // $this->app->extend(ConfigRepositoryContract::class, function ($config, $app) {
+        //     $config = new Repository([], $config, $app['cache'], $app['events'], $app);
+        //
+        //     return $config;
+        // });
     }
 
     /**
