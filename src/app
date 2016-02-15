@@ -1,8 +1,0 @@
-
-Notice: Undefined variable: selectedMethodLineRange in phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/Application/ConvertLocalToInstanceVariable.php on line 57
-
-Fatal error: Uncaught TypeError: Argument 2 passed to QafooLabs\Refactoring\Domain\Model\RefactoringException::variableNotInRange() must be an instance of QafooLabs\Refactoring\Domain\Model\LineRange, null given, called in phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/Application/ConvertLocalToInstanceVariable.php on line 57 and defined in phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/Domain/Model/RefactoringException.php:26
-Stack trace:
-#0 phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/Application/ConvertLocalToInstanceVariable.php(57): QafooLabs\Refactoring\Domain\Model\RefactoringException::variableNotInRange(Object(QafooLabs\Refactoring\Domain\Model\Variable), NULL)
-#1 phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/Application/ConvertLocalToInstanceVariable.php(39): QafooLabs\Refactoring\Application\ConvertLocalToInstanceVariable->convertVariablesToInstanceVariables()
-#2 phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/ in phar://C:/Users/recca/refactor.phar/src/main/QafooLabs/Refactoring/Domain/Model/RefactoringException.php on line 26
