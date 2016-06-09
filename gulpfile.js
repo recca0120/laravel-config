@@ -1,5 +1,5 @@
 var elixir = require('laravel-elixir');
-
+var path = require('path');
 /*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
@@ -15,5 +15,5 @@ elixir(function(mix) {
     mix.phpUnit([
         'src/**/*',
         'tests/**/*'
-    ]);
+    ] , path.normalize('vendor/bin/phpunit') + ' --verbose');
 });

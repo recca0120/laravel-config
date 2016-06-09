@@ -4,6 +4,9 @@ namespace Recca0120\Config;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Eloquent Config.
+ */
 class Config extends Model
 {
     /**
@@ -12,4 +15,13 @@ class Config extends Model
      * @var array
      */
     protected $guarded = ['id'];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'value' => 'json',
+    ];
 }

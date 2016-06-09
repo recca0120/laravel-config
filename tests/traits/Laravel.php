@@ -40,7 +40,9 @@ trait Laravel
             ->mock();
 
         foreach ($this->aliases as $className => $alias) {
-            class_alias($className, $alias);
+            if (class_exists($alias) === false) {
+                class_alias($className, $alias);
+            }
         }
 
         Facade::setFacadeApplication($app);
