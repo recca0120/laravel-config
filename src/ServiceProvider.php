@@ -3,10 +3,8 @@
 namespace Recca0120\Config;
 
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Recca0120\Config\Repositories\DatabaseRepository;
 
-/**
- * ServiceProvider.
- */
 class ServiceProvider extends BaseServiceProvider
 {
     /**

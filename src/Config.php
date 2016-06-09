@@ -4,9 +4,6 @@ namespace Recca0120\Config;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Eloquent Config.
- */
 class Config extends Model
 {
     /**

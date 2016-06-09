@@ -4,9 +4,6 @@ namespace Recca0120\Config\Repositories;
 
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 
-/**
- *  DatabaseRepository.
- */
 class DatabaseRepository extends AbstractRepository
 {
     /**
