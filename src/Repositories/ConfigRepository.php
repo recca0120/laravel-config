@@ -50,7 +50,7 @@ class ConfigRepository
             return [];
         });
 
-        file_put_contents($path, $this->toJson());
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         return $data;
     }
@@ -112,19 +112,5 @@ class ConfigRepository
     public function getStoragePath()
     {
         return storage_path('config.json');
-    }
-
-    /**
-     * toJson.
-     *
-     * @method toJson
-     *
-     * @param int $options [description]
-     *
-     * @return array
-     */
-    public function toJson($options = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-    {
-        return json_encode($data, $options);
     }
 }
