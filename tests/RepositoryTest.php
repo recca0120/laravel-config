@@ -1,75 +1,78 @@
 <?php
 
-use Illuminate\Config\Repository;
+use Illuminate\Contracts\Config\Repository as RepositoryContract;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 use Mockery as m;
 use Recca0120\Config\Config;
-use Recca0120\Config\DatabaseRepository;
+use Recca0120\Config\Repositories\DatabaseRepository;
 
 class ConfigTest extends PHPUnit_Framework_TestCase
 {
-    use Laravel;
-
-    public function setUp()
-    {
-        $this->migrate('up');
-    }
-
     public function tearDown()
     {
         m::close();
-        $this->migrate('down');
-        $this->destroyApplication();
     }
 
-    public function test_has()
+    public function test_repository()
     {
-        $config = m::mock(Repository::class)
-            ->shouldReceive('has')->andReturn(true)
+        $data = [
+            'a'  => 'b',
+            'a1' => ['b'],
+        ];
+        $configRepository = m::mock(RepositoryContract::class)
+            ->shouldReceive('all')->andReturnUsing(function () use (&$data) {
+                return $data;
+            })
+            ->shouldReceive('set')->with(m::any(), m::any())->andReturnUsing(function ($key, $value) use (&$data) {
+                $data[$key] = $value;
+            })
+            ->shouldReceive('has')->andReturnUsing(function ($key) use (&$data) {
+                return isset($data[$key]);
+            })
+            ->shouldReceive('get')->andReturnUsing(function ($key) use (&$data) {
+                return $data[$key];
+            })
+            ->shouldReceive('prepend')->andReturnUsing(function ($key, $value) use (&$data) {
+                return $data = array_merge([$key => $value], $data);
+            })
+            ->shouldReceive('push')->andReturnUsing(function ($key, $value) use (&$data) {
+                return $data = array_merge($data, [$key => $value]);
+            })
             ->mock();
 
-        $model = m::mock(Config::class);
-
-        $databaseRepository = new DatabaseRepository($config, $model);
-
-        $this->assertSame($databaseRepository->has('test'), $config->has('test'));
-    }
-
-    public function test_get()
-    {
-        $config = m::mock(Repository::class)
-            ->shouldReceive('get')->andReturn(['all'])
+        $app = m::mock(ApplicationContract::class)
+            ->shouldReceive('storagePath')->andReturn(__DIR__)
             ->mock();
 
-        $model = m::mock(Config::class);
-
-        $databaseRepository = new DatabaseRepository($config, $model);
-
-        $this->assertSame($databaseRepository->get('test'), $config->get('test'));
-    }
-
-    public function test_all()
-    {
-        $config = m::mock(Repository::class)
-            ->shouldReceive('all')->andReturn(['all'])
+        $model = m::mock(Config::class)
+            ->shouldReceive('firstOrCreate')->andReturnSelf()
+            ->shouldReceive('getAttribute')->with('value')->andReturn(['c' => 'd'])
+            ->shouldReceive('setAttribute')->andReturn([])
+            ->shouldReceive('fill')->andReturnSelf()
+            ->shouldReceive('save')->andReturn(true)
             ->mock();
 
-        $model = m::mock(Config::class);
+        $config = new DatabaseRepository($configRepository, $model, $app);
+        $config->set('c', 'd');
+        $config->offsetSet('c', 'd');
+        $this->assertTrue($config->has('a'));
+        $this->assertTrue($config->offsetExists('a'));
+        $this->assertSame($config->offsetGet('a'), 'b');
+        $this->assertSame($config->get('a'), 'b');
+        $config->prepend('e', 'f');
+        $config->push('h', 'i');
+        $config->set('a', ['b']);
+        $config->set('a1', ['d']);
+        $config->offsetUnset('a1');
 
-        $databaseRepository = new DatabaseRepository($config, $model);
+        $this->assertSame($config->all(), $data);
 
-        $this->assertSame($databaseRepository->all(), $config->all());
-    }
+        $config
+            ->needUpdate(false)
+            ->offsetUnset('g');
 
-    public function test_set()
-    {
-        $config = m::mock(Repository::class)
-            ->shouldReceive('set')->andReturn(['all'])
-            ->mock();
+        $config2 = new DatabaseRepository($configRepository, $model, $app);
 
-        $model = m::mock(Config::class);
-
-        $databaseRepository = new DatabaseRepository($config, $model);
-
-        $this->assertSame($databaseRepository->set('test'), $config->set('test'));
+        @unlink(__DIR__.'/config.json');
     }
 }

@@ -4,6 +4,7 @@ namespace Recca0120\Config\Repositories;
 
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
+use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
 /**
  * AbstractRepository.
@@ -18,15 +19,24 @@ abstract class AbstractRepository implements ArrayAccess, RepositoryContract
     protected $config;
 
     /**
+     * $app.
+     *
+     * @var \Illuminate\Contracts\Foundation\Application
+     */
+    protected $app;
+
+    /**
      * __construct.
      *
      * @method __construct
      *
-     * @param \Illuminate\Contracts\Config\Repository $config [description]
+     * @param \Illuminate\Contracts\Config\Repository $config
+     * @param \Illuminate\Contracts\Foundation\Application
      */
-    public function __construct(RepositoryContract $config)
+    public function __construct(RepositoryContract $config, ApplicationContract $app)
     {
         $this->config = $config;
+        $this->app = $app;
     }
 
     /**
@@ -150,5 +160,17 @@ abstract class AbstractRepository implements ArrayAccess, RepositoryContract
     public function offsetUnset($key)
     {
         $this->set($key, null);
+    }
+
+    /**
+     * getStorageFile.
+     *
+     * @method getStorageFile
+     *
+     * @return string
+     */
+    public function getStorageFile()
+    {
+        return $this->app->storagePath().'/config.json';
     }
 }
