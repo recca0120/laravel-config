@@ -90,7 +90,7 @@ class DatabaseRepository extends AbstractRepository
      */
     public function offsetUnset($key)
     {
-        $this->set($key, null);
+        parent::offsetUnset($key);
         $this->storeDiff();
     }
 
@@ -101,11 +101,13 @@ class DatabaseRepository extends AbstractRepository
      *
      * @param bool $status
      *
-     * @return void
+     * @return self
      */
     public function needUpdate($status)
     {
         $this->needUpdate = $status;
+
+        return $this;
     }
 
     /**

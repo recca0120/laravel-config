@@ -6,9 +6,6 @@ use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
-/**
- * AbstractRepository.
- */
 abstract class AbstractRepository implements ArrayAccess, RepositoryContract
 {
     /**
