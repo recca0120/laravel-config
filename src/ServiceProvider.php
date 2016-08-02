@@ -15,6 +15,10 @@ class ServiceProvider extends BaseServiceProvider
     public function boot()
     {
         $this->handlePublishes();
+        if ($this->app->runningInConsole() === true) {
+            return;
+        }
+
         $this->app->booted(function () {
             $config = $this->app->make(DatabaseRepository::class);
             $this->app->instance('config', $config);
@@ -30,7 +34,7 @@ class ServiceProvider extends BaseServiceProvider
     public function handlePublishes()
     {
         $this->publishes([
-            __DIR__.'/../database/migrations/' => database_path('migrations'),
+            __DIR__.'/../database/migrations/' => $this->app->databasePath().'/migrations',
         ], 'migrations');
     }
 

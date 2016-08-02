@@ -6,20 +6,36 @@ use Mockery as m;
 use Recca0120\Config\Config;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
-class ConfigTest extends PHPUnit_Framework_TestCase
+class RepositoryTest extends PHPUnit_Framework_TestCase
 {
     public function tearDown()
     {
         m::close();
     }
 
-    public function test_repository()
+    public function testRepository()
     {
+        /*
+        |------------------------------------------------------------
+        | Set
+        |------------------------------------------------------------
+        */
+
+        $configRepository = m::mock(RepositoryContract::class);
+        $app = m::mock(ApplicationContract::class);
+        $model = m::mock(Config::class);
         $data = [
             'a'  => 'b',
             'a1' => ['b'],
         ];
-        $configRepository = m::mock(RepositoryContract::class)
+
+        /*
+        |------------------------------------------------------------
+        | Expectation
+        |------------------------------------------------------------
+        */
+
+        $configRepository
             ->shouldReceive('all')->andReturnUsing(function () use (&$data) {
                 return $data;
             })
@@ -40,17 +56,23 @@ class ConfigTest extends PHPUnit_Framework_TestCase
             })
             ->mock();
 
-        $app = m::mock(ApplicationContract::class)
+        $app
             ->shouldReceive('storagePath')->andReturn(__DIR__)
             ->mock();
 
-        $model = m::mock(Config::class)
+        $model
             ->shouldReceive('firstOrCreate')->andReturnSelf()
             ->shouldReceive('getAttribute')->with('value')->andReturn(['c' => 'd'])
             ->shouldReceive('setAttribute')->andReturn([])
             ->shouldReceive('fill')->andReturnSelf()
             ->shouldReceive('save')->andReturn(true)
             ->mock();
+
+        /*
+        |------------------------------------------------------------
+        | Assertion
+        |------------------------------------------------------------
+        */
 
         $config = new DatabaseRepository($configRepository, $model, $app);
         $config->set('c', 'd');
