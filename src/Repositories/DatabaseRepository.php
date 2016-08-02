@@ -62,8 +62,10 @@ class DatabaseRepository extends AbstractRepository
             return $data;
         });
 
-        foreach (array_dot($data) as $key => $value) {
-            $config->set($key, $value);
+        if (is_null($data) === false) {
+            foreach (array_dot($data) as $key => $value) {
+                $config->set($key, $value);
+            }
         }
     }
 
@@ -181,15 +183,15 @@ class DatabaseRepository extends AbstractRepository
         $difference = [];
         foreach ($array1 as $key => $value) {
             if (is_array($value)) {
-                if (!isset($array2[$key]) || !is_array($array2[$key])) {
+                if (isset($array2[$key]) === false || is_array($array2[$key]) === false) {
                     $difference[$key] = $value;
                 } else {
                     $new_diff = $this->arrayDiffAssocRecursive($value, $array2[$key]);
-                    if (!empty($new_diff)) {
+                    if (empty($new_diff) === false) {
                         $difference[$key] = $new_diff;
                     }
                 }
-            } elseif (!array_key_exists($key, $array2) || $array2[$key] !== $value) {
+            } elseif (array_key_exists($key, $array2) === false || $array2[$key] !== $value) {
                 $difference[$key] = $value;
             }
         }
