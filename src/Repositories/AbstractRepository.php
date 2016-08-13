@@ -5,8 +5,9 @@ namespace Recca0120\Config\Repositories;
 use ArrayAccess;
 use Illuminate\Contracts\Config\Repository as RepositoryContract;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Recca0120\Config\Contracts\Repository;
 
-abstract class AbstractRepository implements ArrayAccess, RepositoryContract
+abstract class AbstractRepository implements ArrayAccess, Repository, RepositoryContract
 {
     /**
      * $config.
