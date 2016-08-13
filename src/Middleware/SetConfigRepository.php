@@ -26,8 +26,8 @@ class SetConfigRepository
      *
      * @method __construct
      *
-     * @param \Illuminate\Contracts\Foundation\Application      $app
-     * @param \Recca0120\Config\Contracts\Repository $config
+     * @param \Illuminate\Contracts\Foundation\Application $app
+     * @param \Recca0120\Config\Contracts\Repository       $config
      */
     public function __construct(ApplicationContract $app, RepositoryContract $config)
     {
@@ -41,7 +41,7 @@ class SetConfigRepository
      * @method handle
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
+     * @param \Closure                 $next
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
