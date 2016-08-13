@@ -57,7 +57,7 @@ class DatabaseRepository extends AbstractRepository
                 return json_decode(file_get_contents($file), true);
             }
             $data = $this->getModel()->value;
-            $this->store($data);
+            $this->storeToFile($data);
 
             return $data;
         });
@@ -80,7 +80,7 @@ class DatabaseRepository extends AbstractRepository
     public function set($key, $value = null)
     {
         parent::set($key, $value);
-        $this->storeDiff();
+        $this->store();
     }
 
     /**
@@ -93,7 +93,7 @@ class DatabaseRepository extends AbstractRepository
     public function offsetUnset($key)
     {
         parent::offsetUnset($key);
-        $this->storeDiff();
+        $this->store();
     }
 
     /**
@@ -139,32 +139,35 @@ class DatabaseRepository extends AbstractRepository
     }
 
     /**
-     * store.
+     * storeToFile.
      *
-     * @method store
+     * @method storeToFile
      *
      * @param mix $data
      */
-    protected function store($data)
+    protected function storeToFile($data)
     {
         file_put_contents($this->getStorageFile(), json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
     /**
-     * storeDiff description.
+     * store.
      *
-     * @method storeDiff
+     * @method store
      */
-    protected function storeDiff()
+    protected function store()
     {
         if ($this->needUpdate === false) {
             return;
         }
+
         $diff = $this->arrayDiffAssocRecursive($this->all(), $this->original);
         if (empty($diff) === false) {
             $model = $this->getModel();
-            $model->fill(['value' => $diff])->save();
-            $this->store($diff);
+            $model
+                ->fill(['value' => $diff])
+                ->save();
+            $this->storeToFile($diff);
         }
     }
 

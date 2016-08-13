@@ -2,7 +2,10 @@
 
 namespace Recca0120\Config;
 
+use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
+use Recca0120\Config\Contracts\Repository as RepositoryContract;
+use Recca0120\Config\Middleware\SetConfigRepository;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
 class ServiceProvider extends BaseServiceProvider
@@ -12,18 +15,14 @@ class ServiceProvider extends BaseServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(HttpKernelContract $kernel)
     {
         $this->handlePublishes();
         if ($this->app->runningInConsole() === true) {
             return;
         }
 
-        $this->app->booted(function () {
-            $config = $this->app->make(DatabaseRepository::class);
-            $this->app->instance('config', $config);
-            date_default_timezone_set($config->get('app.timezone'));
-        });
+        $kernel->pushMiddleware(SetConfigRepository::class);
     }
 
     /**
@@ -45,6 +44,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(RepositoryContract::class, DatabaseRepository::class);
     }
 
     /**

@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
 use Mockery as m;
+use Recca0120\Config\Contracts\Repository as RepositoryContract;
+use Recca0120\Config\Middleware\SetConfigRepository;
 use Recca0120\Config\Repositories\DatabaseRepository;
 use Recca0120\Config\ServiceProvider;
 
@@ -22,6 +25,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
 
         $app = m::mock(ApplicationContract::class);
         $config = m::mock(DatabaseRepository::class);
+        $kernel = m::mock(HttpKernelContract::class);
 
         /*
         |------------------------------------------------------------
@@ -29,16 +33,12 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app
-            ->shouldReceive('databasePath')->once()
-            ->shouldReceive('runningInConsole')->once()->andReturn(false)
-            ->shouldReceive('booted')->with(m::type(Closure::class))->once()->andReturnUsing(function ($closure) {
-                $closure();
-            })
-            ->shouldReceive('make')->with(DatabaseRepository::class)->andReturn($config)
-            ->shouldReceive('instance')->with('config', $config);
+        $kernel->shouldReceive('pushMiddleware')->with(SetConfigRepository::class)->once();
 
-        $config->shouldReceive('get')->with('app.timezone')->once()->andReturn('Asia/Taipei');
+        $app
+            ->shouldReceive('singleton')->with(RepositoryContract::class, DatabaseRepository::class)->once()
+            ->shouldReceive('databasePath')->once()
+            ->shouldReceive('runningInConsole')->once()->andReturn(false);
 
         /*
         |------------------------------------------------------------
@@ -49,7 +49,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         $serviceProvider = new ServiceProvider($app);
         $serviceProvider->register();
         $serviceProvider->provides();
-        $serviceProvider->boot();
+        $serviceProvider->boot($kernel);
     }
 
     public function testRunningInConsole()
@@ -62,6 +62,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
 
         $app = m::mock(ApplicationContract::class);
         $config = m::mock(DatabaseRepository::class);
+        $kernel = m::mock(HttpKernelContract::class);
 
         /*
         |------------------------------------------------------------
@@ -70,6 +71,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         */
 
         $app
+            ->shouldReceive('singleton')->with(RepositoryContract::class, DatabaseRepository::class)->once()
             ->shouldReceive('databasePath')->once()->andReturn(__DIR__)
             ->shouldReceive('runningInConsole')->once()->andReturn(true);
 
@@ -82,6 +84,6 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         $serviceProvider = new ServiceProvider($app);
         $serviceProvider->register();
         $serviceProvider->provides();
-        $serviceProvider->boot();
+        $serviceProvider->boot($kernel);
     }
 }
