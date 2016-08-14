@@ -15,7 +15,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function testBoot()
+    public function test_boot()
     {
         /*
         |------------------------------------------------------------
@@ -52,7 +52,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         $serviceProvider->boot($kernel);
     }
 
-    public function testRunningInConsole()
+    public function test_running_in_console()
     {
         /*
         |------------------------------------------------------------
