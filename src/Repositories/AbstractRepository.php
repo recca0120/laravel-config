@@ -77,8 +77,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      *
      * @param array|string $key
      * @param mixed        $value
-     *
-     * @return void
      */
     public function set($key, $value = null)
     {
@@ -90,8 +88,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      *
      * @param string $key
      * @param mixed  $value
-     *
-     * @return void
      */
     public function prepend($key, $value)
     {
@@ -103,8 +99,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      *
      * @param string $key
      * @param mixed  $value
-     *
-     * @return void
      */
     public function push($key, $value)
     {
@@ -140,8 +134,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      *
      * @param string $key
      * @param mixed  $value
-     *
-     * @return void
      */
     public function offsetSet($key, $value)
     {
@@ -152,8 +144,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      * Unset a configuration option.
      *
      * @param string $key
-     *
-     * @return void
      */
     public function offsetUnset($key)
     {

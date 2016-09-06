@@ -12,8 +12,6 @@ class ServiceProvider extends BaseServiceProvider
 {
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
     public function boot(HttpKernelContract $kernel)
     {
@@ -27,8 +25,6 @@ class ServiceProvider extends BaseServiceProvider
 
     /**
      * handle publishes.
-     *
-     * @return void
      */
     public function handlePublishes()
     {
@@ -39,8 +35,6 @@ class ServiceProvider extends BaseServiceProvider
 
     /**
      * Register any application services.
-     *
-     * @return void
      */
     public function register()
     {

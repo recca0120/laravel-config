@@ -25,7 +25,7 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
         $app = m::mock(ApplicationContract::class);
         $model = m::mock(Config::class);
         $data = [
-            'a'  => 'b',
+            'a' => 'b',
             'a1' => ['b'],
         ];
 

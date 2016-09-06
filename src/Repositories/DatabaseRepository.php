@@ -74,8 +74,6 @@ class DatabaseRepository extends AbstractRepository
      *
      * @param array|string $key
      * @param mixed        $value
-     *
-     * @return void
      */
     public function set($key, $value = null)
     {
@@ -87,8 +85,6 @@ class DatabaseRepository extends AbstractRepository
      * Unset a configuration option.
      *
      * @param string $key
-     *
-     * @return void
      */
     public function offsetUnset($key)
     {
