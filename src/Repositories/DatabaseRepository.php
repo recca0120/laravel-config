@@ -2,8 +2,8 @@
 
 namespace Recca0120\Config\Repositories;
 
-use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Foundation\Application;
 use Recca0120\Config\Config;
 
 class DatabaseRepository extends AbstractRepository
@@ -41,11 +41,11 @@ class DatabaseRepository extends AbstractRepository
      *
      * @method __construct
      *
-     * @param \Illuminate\Contracts\Config\Repository $config
-     * @param \Recca0120\Config\Config
-     * @param \Illuminate\Contracts\Foundation\Application
+     * @param \Illuminate\Contracts\Config\Repository       $config
+     * @param \Recca0120\Config\Config                      $model
+     * @param \Illuminate\Contracts\Foundation\Application  $app
      */
-    public function __construct(RepositoryContract $config, Config $model, ApplicationContract $app)
+    public function __construct(Repository $config, Config $model, Application $app)
     {
         parent::__construct($config, $app);
         $this->original = $config->all();

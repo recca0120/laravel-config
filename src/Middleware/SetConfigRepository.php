@@ -2,8 +2,8 @@
 
 namespace Recca0120\Config\Middleware;
 
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Recca0120\Config\Contracts\Repository as RepositoryContract;
+use Illuminate\Contracts\Foundation\Application;
+use Recca0120\Config\Contracts\Repository;
 
 class SetConfigRepository
 {
@@ -29,7 +29,7 @@ class SetConfigRepository
      * @param \Illuminate\Contracts\Foundation\Application $app
      * @param \Recca0120\Config\Contracts\Repository       $config
      */
-    public function __construct(ApplicationContract $app, RepositoryContract $config)
+    public function __construct(Application $app, Repository $config)
     {
         $this->app = $app;
         $this->config = $config;

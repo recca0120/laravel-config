@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Foundation\Application;
 use Mockery as m;
 use Recca0120\Config\Config;
 use Recca0120\Config\Repositories\DatabaseRepository;
@@ -21,8 +21,8 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $configRepository = m::mock(RepositoryContract::class);
-        $app = m::mock(ApplicationContract::class);
+        $configRepository = m::mock(Repository::class);
+        $app = m::mock(Application::class);
         $model = m::mock(Config::class);
         $data = [
             'a' => 'b',

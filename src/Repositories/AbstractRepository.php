@@ -3,9 +3,9 @@
 namespace Recca0120\Config\Repositories;
 
 use ArrayAccess;
-use Illuminate\Contracts\Config\Repository as RepositoryContract;
-use Illuminate\Contracts\Foundation\Application as ApplicationContract;
-use Recca0120\Config\Contracts\Repository;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Contracts\Foundation\Application;
+use Recca0120\Config\Contracts\Repository as RepositoryContract;
 
 abstract class AbstractRepository implements ArrayAccess, Repository, RepositoryContract
 {
@@ -31,7 +31,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      * @param \Illuminate\Contracts\Config\Repository $config
      * @param \Illuminate\Contracts\Foundation\Application
      */
-    public function __construct(RepositoryContract $config, ApplicationContract $app)
+    public function __construct(Repository $config, Application $app)
     {
         $this->config = $config;
         $this->app = $app;

@@ -2,9 +2,9 @@
 
 namespace Recca0120\Config;
 
-use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Recca0120\Config\Contracts\Repository as RepositoryContract;
+use Recca0120\Config\Contracts\Repository;
 use Recca0120\Config\Middleware\SetConfigRepository;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
@@ -13,7 +13,7 @@ class ServiceProvider extends BaseServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(HttpKernelContract $kernel)
+    public function boot(Kernel $kernel)
     {
         $this->handlePublishes();
         if ($this->app->runningInConsole() === true) {
@@ -38,7 +38,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(RepositoryContract::class, DatabaseRepository::class);
+        $this->app->singleton(Repository::class, DatabaseRepository::class);
     }
 
     /**
