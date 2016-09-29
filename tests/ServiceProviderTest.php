@@ -1,11 +1,6 @@
 <?php
 
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Http\Kernel;
 use Mockery as m;
-use Recca0120\Config\Contracts\Repository;
-use Recca0120\Config\Middleware\SetConfigRepository;
-use Recca0120\Config\Repositories\DatabaseRepository;
 use Recca0120\Config\ServiceProvider;
 
 class ServiceProviderTest extends PHPUnit_Framework_TestCase
@@ -23,9 +18,9 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app = m::mock(Application::class);
-        $config = m::mock(DatabaseRepository::class);
-        $kernel = m::mock(Kernel::class);
+        $app = m::mock('Illuminate\Contracts\Foundation\Application');
+        $config = m::mock('Recca0120\Config\Repositories\DatabaseRepository');
+        $kernel = m::mock('Illuminate\Contracts\Http\Kernel');
 
         /*
         |------------------------------------------------------------
@@ -33,10 +28,10 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $kernel->shouldReceive('pushMiddleware')->with(SetConfigRepository::class)->once();
+        $kernel->shouldReceive('pushMiddleware')->with('Recca0120\Config\Middleware\SetConfigRepository')->once();
 
         $app
-            ->shouldReceive('singleton')->with(Repository::class, DatabaseRepository::class)->once()
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', 'Recca0120\Config\Repositories\DatabaseRepository')->once()
             ->shouldReceive('databasePath')->once()
             ->shouldReceive('runningInConsole')->once()->andReturn(false);
 
@@ -60,9 +55,9 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $app = m::mock(Application::class);
-        $config = m::mock(DatabaseRepository::class);
-        $kernel = m::mock(Kernel::class);
+        $app = m::mock('Illuminate\Contracts\Foundation\Application');
+        $config = m::mock('Recca0120\Config\Repositories\DatabaseRepository');
+        $kernel = m::mock('Illuminate\Contracts\Http\Kernel');
 
         /*
         |------------------------------------------------------------
@@ -71,7 +66,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         */
 
         $app
-            ->shouldReceive('singleton')->with(Repository::class, DatabaseRepository::class)->once()
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', 'Recca0120\Config\Repositories\DatabaseRepository')->once()
             ->shouldReceive('databasePath')->once()->andReturn(__DIR__)
             ->shouldReceive('runningInConsole')->once()->andReturn(true);
 

@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Contracts\Foundation\Application;
 use Mockery as m;
-use Recca0120\Config\Config;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
 class RepositoryTest extends PHPUnit_Framework_TestCase
@@ -21,9 +18,9 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $configRepository = m::mock(Repository::class);
-        $app = m::mock(Application::class);
-        $model = m::mock(Config::class);
+        $configRepository = m::mock('Illuminate\Contracts\Config\Repository');
+        $app = m::mock('Illuminate\Contracts\Foundation\Application');
+        $model = m::mock('Recca0120\Config\Config');
         $data = [
             'a' => 'b',
             'a1' => ['b'],
