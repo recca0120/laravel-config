@@ -159,6 +159,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function getStorageFile()
     {
-        return $this->app->storagePath().'/config.json';
+        return $this->app->storagePath().'/app/config.json';
     }
 }
