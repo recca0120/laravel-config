@@ -31,7 +31,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         $kernel->shouldReceive('pushMiddleware')->with('Recca0120\Config\Middleware\SetConfigRepository')->once();
 
         $app
-            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function($className, $closure) use ($app) {
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function ($className, $closure) use ($app) {
                 $closure($app);
             })
             ->shouldReceive('make')->with('Recca0120\Config\Repositories\DatabaseRepository', m::any())->once()
@@ -70,7 +70,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         */
 
         $app
-            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function($className, $closure) use ($app) {
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function ($className, $closure) use ($app) {
                 $closure($app);
             })
             ->shouldReceive('make')->with('Recca0120\Config\Repositories\DatabaseRepository', m::any())->once()

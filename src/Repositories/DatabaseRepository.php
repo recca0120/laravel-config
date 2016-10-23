@@ -4,9 +4,8 @@ namespace Recca0120\Config\Repositories;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Contracts\Foundation\Application;
-use Recca0120\Config\Config;
 use Illuminate\Support\Arr;
+use Recca0120\Config\Config;
 
 class DatabaseRepository extends AbstractRepository
 {
@@ -32,14 +31,14 @@ class DatabaseRepository extends AbstractRepository
     protected $model;
 
     /**
-     * $filesystem
+     * $filesystem.
      *
      * @var \Illuminate\Filesystem\Filesystem
      */
     protected $filesystem;
 
     /**
-     * $config
+     * $config.
      *
      * @var string
      */
@@ -68,10 +67,7 @@ class DatabaseRepository extends AbstractRepository
         $this->model = $model;
         $this->filesystem = $filesystem;
         $this->config = $config;
-        $this->load();
-    }
 
-    protected function load() {
         $data = value(function () {
             $file = $this->getStorageFile();
             if ($this->filesystem->exists($file) === true) {
@@ -86,8 +82,6 @@ class DatabaseRepository extends AbstractRepository
         foreach (array_dot($data) as $key => $value) {
             $repository->set($key, $value);
         }
-
-        return $this;
     }
 
     /**
@@ -237,6 +231,6 @@ class DatabaseRepository extends AbstractRepository
      */
     public function getStorageFile()
     {
-        return Arr::get($this->config, 'storagePath').'config.json';
+        return Arr::get($this->config, 'path').'config.json';
     }
 }
