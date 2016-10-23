@@ -31,8 +31,12 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         $kernel->shouldReceive('pushMiddleware')->with('Recca0120\Config\Middleware\SetConfigRepository')->once();
 
         $app
-            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', 'Recca0120\Config\Repositories\DatabaseRepository')->once()
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function($className, $closure) use ($app) {
+                $closure($app);
+            })
+            ->shouldReceive('make')->with('Recca0120\Config\Repositories\DatabaseRepository', m::any())->once()
             ->shouldReceive('databasePath')->once()
+            ->shouldReceive('storagePath')->once()->andReturn(__DIR__)
             ->shouldReceive('runningInConsole')->once()->andReturn(false);
 
         /*
@@ -66,8 +70,12 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         */
 
         $app
-            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', 'Recca0120\Config\Repositories\DatabaseRepository')->once()
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function($className, $closure) use ($app) {
+                $closure($app);
+            })
+            ->shouldReceive('make')->with('Recca0120\Config\Repositories\DatabaseRepository', m::any())->once()
             ->shouldReceive('databasePath')->once()->andReturn(__DIR__)
+            ->shouldReceive('storagePath')->once()->andReturn(__DIR__)
             ->shouldReceive('runningInConsole')->once()->andReturn(true);
 
         /*

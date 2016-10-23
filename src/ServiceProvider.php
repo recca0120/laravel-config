@@ -38,7 +38,15 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(Repository::class, DatabaseRepository::class);
+        $this->app->singleton(Repository::class, function($app) {
+            $config = [
+                'storagePath' => $app->storagePath().'/app/',
+            ];
+
+            return $app->make(DatabaseRepository::class, [
+                'config' => $config,
+            ]);
+        });
     }
 
     /**

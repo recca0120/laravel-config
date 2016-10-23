@@ -3,8 +3,10 @@
 namespace Recca0120\Config\Repositories;
 
 use Illuminate\Contracts\Config\Repository;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 use Recca0120\Config\Config;
+use Illuminate\Support\Arr;
 
 class DatabaseRepository extends AbstractRepository
 {
@@ -30,9 +32,23 @@ class DatabaseRepository extends AbstractRepository
     protected $model;
 
     /**
+     * $filesystem
+     *
+     * @var \Illuminate\Filesystem\Filesystem
+     */
+    protected $filesystem;
+
+    /**
+     * $config
+     *
+     * @var string
+     */
+    protected $config;
+
+    /**
      * $needUpdate.
      *
-     * @var [type]
+     * @var bool
      */
     protected $needUpdate = true;
 
@@ -41,20 +57,25 @@ class DatabaseRepository extends AbstractRepository
      *
      * @method __construct
      *
-     * @param \Illuminate\Contracts\Config\Repository       $config
-     * @param \Recca0120\Config\Config                      $model
-     * @param \Illuminate\Contracts\Foundation\Application  $app
+     * @param \Illuminate\Contracts\Config\Repository   $repository
+     * @param \Recca0120\Config\Config                  $model
+     * @param string                                    $config
      */
-    public function __construct(Repository $config, Config $model, Application $app)
+    public function __construct(Repository $repository, Config $model, Filesystem $filesystem, $config = [])
     {
-        parent::__construct($config, $app);
-        $this->original = $config->all();
+        parent::__construct($repository);
+        $this->original = $repository->all();
         $this->model = $model;
+        $this->filesystem = $filesystem;
+        $this->config = $config;
+        $this->load();
+    }
 
+    protected function load() {
         $data = value(function () {
             $file = $this->getStorageFile();
-            if (file_exists($file) === true) {
-                return json_decode(file_get_contents($file), true);
+            if ($this->filesystem->exists($file) === true) {
+                return json_decode($this->filesystem->get($file), true);
             }
             $data = $this->getModel()->value;
             $this->storeToFile($data);
@@ -62,11 +83,11 @@ class DatabaseRepository extends AbstractRepository
             return $data;
         });
 
-        if (is_null($data) === false) {
-            foreach (array_dot($data) as $key => $value) {
-                $config->set($key, $value);
-            }
+        foreach (array_dot($data) as $key => $value) {
+            $repository->set($key, $value);
         }
+
+        return $this;
     }
 
     /**
@@ -143,7 +164,16 @@ class DatabaseRepository extends AbstractRepository
      */
     protected function storeToFile($data)
     {
-        file_put_contents($this->getStorageFile(), json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        if (is_null($data) === true) {
+            $data = [];
+        }
+        $option = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
+        $this->filesystem->put(
+            $this->getStorageFile(),
+            json_encode($data, $option)
+        );
+
+        return $this;
     }
 
     /**
@@ -196,5 +226,17 @@ class DatabaseRepository extends AbstractRepository
         }
 
         return $difference;
+    }
+
+    /**
+     * getStorageFile.
+     *
+     * @method getStorageFile
+     *
+     * @return string
+     */
+    public function getStorageFile()
+    {
+        return Arr::get($this->config, 'storagePath').'config.json';
     }
 }

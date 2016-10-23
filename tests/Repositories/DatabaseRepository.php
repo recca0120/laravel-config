@@ -3,7 +3,7 @@
 use Mockery as m;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
-class RepositoryTest extends PHPUnit_Framework_TestCase
+class DatabaseRepositoryTest extends PHPUnit_Framework_TestCase
 {
     public function tearDown()
     {
@@ -18,9 +18,9 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $configRepository = m::mock('Illuminate\Contracts\Config\Repository');
-        $app = m::mock('Illuminate\Contracts\Foundation\Application');
+        $originalRepository = m::mock('Illuminate\Contracts\Config\Repository');
         $model = m::mock('Recca0120\Config\Config');
+        $filesystem = m::mock('Illuminate\Filesystem\Filesystem');
         $data = [
             'a' => 'b',
             'a1' => ['b'],
@@ -32,7 +32,7 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $configRepository
+        $originalRepository
             ->shouldReceive('all')->andReturnUsing(function () use (&$data) {
                 return $data;
             })
@@ -50,20 +50,19 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
             })
             ->shouldReceive('push')->andReturnUsing(function ($key, $value) use (&$data) {
                 return $data = array_merge($data, [$key => $value]);
-            })
-            ->mock();
-
-        $app
-            ->shouldReceive('storagePath')->andReturn(__DIR__)
-            ->mock();
+            });
 
         $model
             ->shouldReceive('firstOrCreate')->andReturnSelf()
             ->shouldReceive('getAttribute')->with('value')->andReturn(['c' => 'd'])
             ->shouldReceive('setAttribute')->andReturn([])
             ->shouldReceive('fill')->andReturnSelf()
-            ->shouldReceive('save')->andReturn(true)
-            ->mock();
+            ->shouldReceive('save')->andReturn(true);
+
+        $filesystem
+            ->shouldReceive('exists')->with('config.json')->andReturn(true)
+            ->shouldReceive('get')->with('config.json')->andReturn('[]')
+            ->shouldReceive('put')->with('config.json', m::type('string'));
 
         /*
         |------------------------------------------------------------
@@ -71,27 +70,25 @@ class RepositoryTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $config = new DatabaseRepository($configRepository, $model, $app);
-        $config->set('c', 'd');
-        $config->offsetSet('c', 'd');
-        $this->assertTrue($config->has('a'));
-        $this->assertTrue($config->offsetExists('a'));
-        $this->assertSame($config->offsetGet('a'), 'b');
-        $this->assertSame($config->get('a'), 'b');
-        $config->prepend('e', 'f');
-        $config->push('h', 'i');
-        $config->set('a', ['b']);
-        $config->set('a1', ['d']);
-        $config->offsetUnset('a1');
+        $repository = new DatabaseRepository($originalRepository, $model, $filesystem);
+        $repository->set('c', 'd');
+        $repository->offsetSet('c', 'd');
+        $this->assertTrue($repository->has('a'));
+        $this->assertTrue($repository->offsetExists('a'));
+        $this->assertSame($repository->offsetGet('a'), 'b');
+        $this->assertSame($repository->get('a'), 'b');
+        $repository->prepend('e', 'f');
+        $repository->push('h', 'i');
+        $repository->set('a', ['b']);
+        $repository->set('a1', ['d']);
+        $repository->offsetUnset('a1');
 
-        $this->assertSame($config->all(), $data);
+        $this->assertSame($repository->all(), $data);
 
-        $config
+        $repository
             ->needUpdate(false)
             ->offsetUnset('g');
 
-        $config2 = new DatabaseRepository($configRepository, $model, $app);
-
-        @unlink(__DIR__.'/config.json');
+        $repository2 = new DatabaseRepository($originalRepository, $model, $filesystem);
     }
 }

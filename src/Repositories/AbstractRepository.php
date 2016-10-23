@@ -10,11 +10,11 @@ use Recca0120\Config\Contracts\Repository as RepositoryContract;
 abstract class AbstractRepository implements ArrayAccess, Repository, RepositoryContract
 {
     /**
-     * $config.
+     * $repository.
      *
      * @var \Illuminate\Contracts\Config\Repository
      */
-    protected $config;
+    protected $repository;
 
     /**
      * $app.
@@ -28,13 +28,11 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      *
      * @method __construct
      *
-     * @param \Illuminate\Contracts\Config\Repository $config
-     * @param \Illuminate\Contracts\Foundation\Application
+     * @param \Illuminate\Contracts\Config\Repository $repository
      */
-    public function __construct(Repository $config, Application $app)
+    public function __construct(Repository $repository)
     {
-        $this->config = $config;
-        $this->app = $app;
+        $this->repository = $repository;
     }
 
     /**
@@ -46,7 +44,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function has($key)
     {
-        return $this->config->has($key);
+        return $this->repository->has($key);
     }
 
     /**
@@ -59,7 +57,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function get($key, $default = null)
     {
-        return $this->config->get($key, $default);
+        return $this->repository->get($key, $default);
     }
 
     /**
@@ -69,7 +67,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function all()
     {
-        return $this->config->all();
+        return $this->repository->all();
     }
 
     /**
@@ -80,7 +78,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function set($key, $value = null)
     {
-        $this->config->set($key, $value);
+        $this->repository->set($key, $value);
     }
 
     /**
@@ -91,7 +89,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function prepend($key, $value)
     {
-        return $this->config->prepend($key, $value);
+        return $this->repository->prepend($key, $value);
     }
 
     /**
@@ -102,7 +100,7 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      */
     public function push($key, $value)
     {
-        return $this->config->push($key, $value);
+        return $this->repository->push($key, $value);
     }
 
     /**
@@ -148,17 +146,5 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
     public function offsetUnset($key)
     {
         $this->set($key, null);
-    }
-
-    /**
-     * getStorageFile.
-     *
-     * @method getStorageFile
-     *
-     * @return string
-     */
-    public function getStorageFile()
-    {
-        return $this->app->storagePath().'/app/config.json';
     }
 }
