@@ -181,13 +181,16 @@ class DatabaseRepository extends AbstractRepository
             return;
         }
 
-        $diff = $this->arrayDiffAssocRecursive($this->all(), $this->original);
-        if (empty($diff) === false) {
+        $data = $this->removeKeys(
+            $this->arrayDiffAssocRecursive($this->all(), $this->original)
+        );
+
+        if (empty($data) === false) {
             $model = $this->getModel();
             $model
-                ->fill(['value' => $diff])
+                ->fill(['value' => $data])
                 ->save();
-            $this->storeToFile($diff);
+            $this->storeToFile($data);
         }
     }
 
@@ -232,5 +235,24 @@ class DatabaseRepository extends AbstractRepository
     public function getStorageFile()
     {
         return Arr::get($this->config, 'path').'config.json';
+    }
+
+    /**
+     * removeKeys.
+     *
+     * @method removeKeys
+     *
+     * @param  array    $data
+     *
+     * @return array
+     */
+    public function removeKeys($data)
+    {
+        $keys = ['auth.defaults.guard'];
+        foreach ($keys as $key) {
+            Arr::forget($difference, $data);
+        }
+
+        return $data;
     }
 }
