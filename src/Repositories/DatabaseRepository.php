@@ -45,13 +45,6 @@ class DatabaseRepository extends AbstractRepository
     protected $config;
 
     /**
-     * $needUpdate.
-     *
-     * @var bool
-     */
-    protected $needUpdate = true;
-
-    /**
      * __construct.
      *
      * @method __construct
@@ -108,22 +101,6 @@ class DatabaseRepository extends AbstractRepository
     }
 
     /**
-     * needUpdate.
-     *
-     * @method needUpdate
-     *
-     * @param bool $status
-     *
-     * @return self
-     */
-    public function needUpdate($status)
-    {
-        $this->needUpdate = $status;
-
-        return $this;
-    }
-
-    /**
      * cloneModel.
      *
      * @method cloneModel
@@ -177,11 +154,7 @@ class DatabaseRepository extends AbstractRepository
      */
     protected function store()
     {
-        if ($this->needUpdate === false) {
-            return;
-        }
-
-        $data = $this->removeKeys(
+        $data = $this->protectedKeys(
             $this->arrayDiffAssocRecursive($this->all(), $this->original)
         );
 
@@ -238,19 +211,18 @@ class DatabaseRepository extends AbstractRepository
     }
 
     /**
-     * removeKeys.
+     * protectedKeys.
      *
-     * @method removeKeys
+     * @method protectedKeys
      *
      * @param  array    $data
      *
      * @return array
      */
-    public function removeKeys($data)
+    protected function protectedKeys($data)
     {
-        $keys = ['auth.defaults.guard'];
-        foreach ($keys as $key) {
-            Arr::forget($difference, $data);
+        foreach (Arr::get($this->config, 'protected') as $key) {
+            Arr::forget($data, $key);
         }
 
         return $data;

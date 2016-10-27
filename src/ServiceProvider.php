@@ -40,6 +40,9 @@ class ServiceProvider extends BaseServiceProvider
     {
         $this->app->singleton(Repository::class, function ($app) {
             $config = [
+                'protected' => [
+                    'auth.defaults.guard',
+                ],
                 'path' => $app->storagePath().'/app/',
             ];
 

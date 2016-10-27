@@ -21,6 +21,7 @@ class DatabaseRepositoryTest extends PHPUnit_Framework_TestCase
         $originalRepository = m::mock('Illuminate\Contracts\Config\Repository');
         $model = m::mock('Recca0120\Config\Config');
         $filesystem = m::mock('Illuminate\Filesystem\Filesystem');
+        $store = [];
         $data = [
             'a' => 'b',
             'a1' => ['b'],
@@ -62,7 +63,9 @@ class DatabaseRepositoryTest extends PHPUnit_Framework_TestCase
         $filesystem
             ->shouldReceive('exists')->with('config.json')->andReturn(true)
             ->shouldReceive('get')->with('config.json')->andReturn('[]')
-            ->shouldReceive('put')->with('config.json', m::type('string'));
+            ->shouldReceive('put')->with('config.json', m::type('string'))->andReturnUsing(function ($filename, $data) use (&$store) {
+                $store = json_decode($data, true);
+            });
 
         /*
         |------------------------------------------------------------
@@ -70,7 +73,11 @@ class DatabaseRepositoryTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $repository = new DatabaseRepository($originalRepository, $model, $filesystem);
+        $repository = new DatabaseRepository($originalRepository, $model, $filesystem, [
+            'protected' => [
+                'auth.defaults.guard',
+            ],
+        ]);
         $repository->set('c', 'd');
         $repository->offsetSet('c', 'd');
         $this->assertTrue($repository->has('a'));
@@ -83,12 +90,10 @@ class DatabaseRepositoryTest extends PHPUnit_Framework_TestCase
         $repository->set('a1', ['d']);
         $repository->offsetUnset('a1');
 
+        $repository->set('auth.defaults.guard', true);
+
         $this->assertSame($repository->all(), $data);
 
-        $repository
-            ->needUpdate(false)
-            ->offsetUnset('g');
-
-        $repository2 = new DatabaseRepository($originalRepository, $model, $filesystem);
+        $this->assertArrayNotHasKey('auth.defaults.guard', $store);
     }
 }
