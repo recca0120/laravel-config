@@ -15,18 +15,17 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function boot(Kernel $kernel)
     {
-        $this->handlePublishes();
-        if ($this->app->runningInConsole() === true) {
-            return;
-        }
-
         $kernel->pushMiddleware(SetConfigRepository::class);
+
+        if ($this->app->runningInConsole() === true) {
+            $this->handlePublishes();
+        }
     }
 
     /**
      * handle publishes.
      */
-    public function handlePublishes()
+    protected function handlePublishes()
     {
         $this->publishes([
             __DIR__.'/../database/migrations/' => $this->app->databasePath().'/migrations',
