@@ -4,7 +4,6 @@ namespace Recca0120\Config\Repositories;
 
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Arr;
 use Recca0120\Config\Config;
 
 class DatabaseRepository extends AbstractRepository
@@ -207,7 +206,7 @@ class DatabaseRepository extends AbstractRepository
      */
     public function getStorageFile()
     {
-        return Arr::get($this->config, 'path').'config.json';
+        return array_get($this->config, 'path').'config.json';
     }
 
     /**
@@ -221,8 +220,8 @@ class DatabaseRepository extends AbstractRepository
      */
     protected function protectedKeys($data)
     {
-        foreach (Arr::get($this->config, 'protected') as $key) {
-            Arr::forget($data, $key);
+        foreach (array_get($this->config, 'protected') as $key) {
+            array_forget($data, $key);
         }
 
         return $data;
