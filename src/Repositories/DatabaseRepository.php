@@ -220,8 +220,8 @@ class DatabaseRepository extends AbstractRepository
      */
     protected function protectedKeys($data)
     {
-        foreach (array_get($this->config, 'protected') as $key) {
-            array_forget($data, $key);
+        if (empty($keys = array_get($this->config, 'protected')) === false) {
+            $data = array_except($data, $keys);
         }
 
         return $data;
