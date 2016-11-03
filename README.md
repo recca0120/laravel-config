@@ -9,3 +9,5 @@ save config to database
 [![License](https://poser.pugx.org/recca0120/config/license.svg)](https://packagist.org/packages/recca0120/config)
 [![Monthly Downloads](https://poser.pugx.org/recca0120/config/d/monthly)](https://packagist.org/packages/recca0120/config)
 [![Daily Downloads](https://poser.pugx.org/recca0120/config/d/daily)](https://packagist.org/packages/recca0120/config)
+
+[![Coverage Status](https://coveralls.io/repos/github/recca0120/laravel-config/badge.svg?branch=master)](https://coveralls.io/github/recca0120/laravel-config?branch=master)
