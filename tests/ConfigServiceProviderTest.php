@@ -1,9 +1,9 @@
 <?php
 
 use Mockery as m;
-use Recca0120\Config\ServiceProvider;
+use Recca0120\Config\ConfigServiceProvider;
 
-class ServiceProviderTest extends PHPUnit_Framework_TestCase
+class ConfigServiceProviderTest extends PHPUnit_Framework_TestCase
 {
     public function tearDown()
     {
@@ -46,7 +46,7 @@ class ServiceProviderTest extends PHPUnit_Framework_TestCase
         |------------------------------------------------------------
         */
 
-        $serviceProvider = new ServiceProvider($app);
+        $serviceProvider = new ConfigServiceProvider($app);
         $serviceProvider->register();
         $serviceProvider->provides();
         $serviceProvider->boot($kernel);
