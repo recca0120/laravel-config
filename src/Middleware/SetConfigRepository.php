@@ -2,8 +2,8 @@
 
 namespace Recca0120\Config\Middleware;
 
-use Illuminate\Contracts\Foundation\Application;
 use Recca0120\Config\Contracts\Repository;
+use Illuminate\Contracts\Foundation\Application;
 
 class SetConfigRepository
 {

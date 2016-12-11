@@ -2,10 +2,10 @@
 
 namespace Recca0120\Config\Repositories;
 
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
 use Recca0120\Config\Config;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Contracts\Config\Repository;
 
 class DatabaseRepository extends AbstractRepository
 {
