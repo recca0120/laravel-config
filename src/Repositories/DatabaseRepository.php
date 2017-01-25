@@ -61,7 +61,7 @@ class DatabaseRepository extends AbstractRepository
         $this->filesystem = $filesystem;
         $this->config = $config;
 
-        $data = value(function () {
+        $data = (array) value(function () {
             $file = $this->getStorageFile();
             if ($this->filesystem->exists($file) === true) {
                 return json_decode($this->filesystem->get($file), true);

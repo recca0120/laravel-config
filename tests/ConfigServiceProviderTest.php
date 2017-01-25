@@ -10,45 +10,81 @@ class ConfigServiceProviderTest extends PHPUnit_Framework_TestCase
         m::close();
     }
 
+    public function test_register()
+    {
+        /*
+        |------------------------------------------------------------
+        | Arrange
+        |------------------------------------------------------------
+        */
+
+        $app = m::spy('Illuminate\Contracts\Foundation\Application, ArrayAccess');
+        $config = m::spy('Illuminate\Contracts\Config\Repository');
+        $filesystem = m::spy('Illuminate\Filesystem\Filesystem');
+        $model = m::spy('Recca0120\Config\Config');
+
+        /*
+        |------------------------------------------------------------
+        | Act
+        |------------------------------------------------------------
+        */
+
+        $model
+            ->shouldReceive('firstOrCreate')->andReturnSelf();
+
+        $app
+            ->shouldReceive('offsetGet')->with('config')->andReturn($config)
+            ->shouldReceive('offsetGet')->with('files')->andReturn($filesystem)
+            ->shouldReceive('make')->with('Recca0120\Config\Config')->andReturn($model)
+            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->andReturnUsing(function ($className, $closure) use ($app) {
+                return $closure($app);
+            });
+
+        $serviceProvider = new ConfigServiceProvider($app);
+        $serviceProvider->register();
+
+        /*
+        |------------------------------------------------------------
+        | Assert
+        |------------------------------------------------------------
+        */
+
+        $app->shouldHaveReceived('offsetGet')->with('config')->once();
+        $app->shouldHaveReceived('offsetGet')->with('files')->once();
+        $app->shouldHaveReceived('make')->with('Recca0120\Config\Config')->once();
+        $app->shouldHaveReceived('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once();
+    }
+
     public function test_boot()
     {
         /*
         |------------------------------------------------------------
-        | Set
+        | Arrange
         |------------------------------------------------------------
         */
 
-        $app = m::mock('Illuminate\Contracts\Foundation\Application');
-        $config = m::mock('Recca0120\Config\Repositories\DatabaseRepository');
-        $kernel = m::mock('Illuminate\Contracts\Http\Kernel');
+        $app = m::spy('Illuminate\Contracts\Foundation\Application, ArrayAccess');
+        $kernel = m::spy('Illuminate\Contracts\Http\Kernel');
 
         /*
         |------------------------------------------------------------
-        | Expectation
+        | Act
         |------------------------------------------------------------
         */
-
-        $kernel
-            ->shouldReceive('pushMiddleware')->with('Recca0120\Config\Middleware\SetConfigRepository')->once();
 
         $app
-            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once()->andReturnUsing(function ($className, $closure) use ($app) {
-                $closure($app);
-            })
-            ->shouldReceive('make')->with('Recca0120\Config\Repositories\DatabaseRepository', m::any())->once()
-            ->shouldReceive('databasePath')->once()
-            ->shouldReceive('storagePath')->once()->andReturn(__DIR__)
-            ->shouldReceive('runningInConsole')->once()->andReturn(true);
+            ->shouldReceive('runningInConsole')->andReturn(true);
+
+        $serviceProvider = new ConfigServiceProvider($app);
+        $serviceProvider->boot($kernel);
+        $serviceProvider->provides();
 
         /*
         |------------------------------------------------------------
-        | Assertion
+        | Assert
         |------------------------------------------------------------
         */
 
-        $serviceProvider = new ConfigServiceProvider($app);
-        $serviceProvider->register();
-        $serviceProvider->provides();
-        $serviceProvider->boot($kernel);
+        $kernel->shouldHaveReceived('pushMiddleware')->with('Recca0120\Config\Middleware\SetConfigRepository')->once();
     }
 }

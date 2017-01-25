@@ -45,9 +45,7 @@ class ConfigServiceProvider extends ServiceProvider
                 'path' => $app->storagePath().'/app/',
             ];
 
-            return $app->make(DatabaseRepository::class, [
-                'config' => $config,
-            ]);
+            return new DatabaseRepository($app['config'], $app->make(Config::class), $app['files'], $config);
         });
     }
 
