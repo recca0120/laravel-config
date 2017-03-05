@@ -40,7 +40,7 @@ class DatabaseRepository extends AbstractRepository
     /**
      * $config.
      *
-     * @var string
+     * @var array
      */
     protected $config;
 
@@ -49,9 +49,9 @@ class DatabaseRepository extends AbstractRepository
      *
      * @method __construct
      *
-     * @param \Illuminate\Contracts\Config\Repository   $repository
-     * @param \Recca0120\Config\Config                  $model
-     * @param string                                    $config
+     * @param \Illuminate\Contracts\Config\Repository $repository
+     * @param \Recca0120\Config\Config $model
+     * @param array $config
      */
     public function __construct(Repository $repository, Config $model, Filesystem $filesystem, $config = [])
     {
@@ -81,7 +81,7 @@ class DatabaseRepository extends AbstractRepository
      * Set a given configuration value.
      *
      * @param array|string $key
-     * @param mixed        $value
+     * @param mixed $value
      */
     public function set($key, $value = null)
     {
@@ -131,7 +131,7 @@ class DatabaseRepository extends AbstractRepository
      *
      * @method storeToFile
      *
-     * @param mix $data
+     * @param mixed $data
      */
     protected function storeToFile($data)
     {
@@ -215,7 +215,7 @@ class DatabaseRepository extends AbstractRepository
      *
      * @method protectedKeys
      *
-     * @param  array    $data
+     * @param array $data
      *
      * @return array
      */
