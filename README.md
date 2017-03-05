@@ -10,4 +10,5 @@ save config to database
 [![Monthly Downloads](https://poser.pugx.org/recca0120/config/d/monthly)](https://packagist.org/packages/recca0120/config)
 [![Daily Downloads](https://poser.pugx.org/recca0120/config/d/daily)](https://packagist.org/packages/recca0120/config)
 
-[![Coverage Status](https://coveralls.io/repos/github/recca0120/laravel-config/badge.svg?branch=master)](https://coveralls.io/github/recca0120/laravel-config?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/recca0120/laravel-config/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/recca0120/laravel-config/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/recca0120/laravel-config/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/recca0120/laravel-config/?branch=master)
