@@ -124,6 +124,7 @@ class DatabaseRepository extends AbstractRepository
      * storeToFile.
      *
      * @param mixed $data
+     * @return $this
      */
     protected function storeToFile($data)
     {
