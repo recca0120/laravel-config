@@ -47,8 +47,6 @@ class DatabaseRepository extends AbstractRepository
     /**
      * __construct.
      *
-     * @method __construct
-     *
      * @param \Illuminate\Contracts\Config\Repository $repository
      * @param \Recca0120\Config\Config $model
      * @param array $config
@@ -103,8 +101,6 @@ class DatabaseRepository extends AbstractRepository
     /**
      * cloneModel.
      *
-     * @method cloneModel
-     *
      * @return \Recca0120\Config\Config
      */
     protected function cloneModel()
@@ -114,8 +110,6 @@ class DatabaseRepository extends AbstractRepository
 
     /**
      * getModel.
-     *
-     * @method getModel
      *
      * @return \Recca0120\Config\Config
      */
@@ -128,8 +122,6 @@ class DatabaseRepository extends AbstractRepository
 
     /**
      * storeToFile.
-     *
-     * @method storeToFile
      *
      * @param mixed $data
      */
@@ -149,8 +141,6 @@ class DatabaseRepository extends AbstractRepository
 
     /**
      * store.
-     *
-     * @method store
      */
     protected function store()
     {
@@ -170,11 +160,8 @@ class DatabaseRepository extends AbstractRepository
     /**
      * arrayDiffAssocRecursive.
      *
-     * @method arrayDiffAssocRecursive
-     *
      * @param array $array1
      * @param array $array2
-     *
      * @return array
      */
     protected function arrayDiffAssocRecursive($array1, $array2)
@@ -201,8 +188,6 @@ class DatabaseRepository extends AbstractRepository
     /**
      * getStorageFile.
      *
-     * @method getStorageFile
-     *
      * @return string
      */
     public function getStorageFile()
@@ -213,10 +198,7 @@ class DatabaseRepository extends AbstractRepository
     /**
      * protectedKeys.
      *
-     * @method protectedKeys
-     *
      * @param array $data
-     *
      * @return array
      */
     protected function protectedKeys($data)

@@ -26,8 +26,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
     /**
      * __construct.
      *
-     * @method __construct
-     *
      * @param \Illuminate\Contracts\Config\Repository $repository
      */
     public function __construct(Repository $repository)
@@ -39,7 +37,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      * Determine if the given configuration value exists.
      *
      * @param string $key
-     *
      * @return bool
      */
     public function has($key)
@@ -52,7 +49,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      *
      * @param string $key
      * @param mixed $default
-     *
      * @return mixed
      */
     public function get($key, $default = null)
@@ -107,7 +103,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      * Determine if the given configuration option exists.
      *
      * @param string $key
-     *
      * @return bool
      */
     public function offsetExists($key)
@@ -119,7 +114,6 @@ abstract class AbstractRepository implements ArrayAccess, Repository, Repository
      * Get a configuration option.
      *
      * @param string $key
-     *
      * @return mixed
      */
     public function offsetGet($key)
