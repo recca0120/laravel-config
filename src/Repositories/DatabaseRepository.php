@@ -99,6 +99,16 @@ class DatabaseRepository extends AbstractRepository
     }
 
     /**
+     * getStorageFile.
+     *
+     * @return string
+     */
+    public function getStorageFile()
+    {
+        return Arr::get($this->config, 'path').'config.json';
+    }
+
+    /**
      * cloneModel.
      *
      * @return \Recca0120\Config\Config
@@ -184,16 +194,6 @@ class DatabaseRepository extends AbstractRepository
         }
 
         return $difference;
-    }
-
-    /**
-     * getStorageFile.
-     *
-     * @return string
-     */
-    public function getStorageFile()
-    {
-        return Arr::get($this->config, 'path').'config.json';
     }
 
     /**

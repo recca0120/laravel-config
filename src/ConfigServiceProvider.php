@@ -23,16 +23,6 @@ class ConfigServiceProvider extends ServiceProvider
     }
 
     /**
-     * handle publishes.
-     */
-    protected function handlePublishes()
-    {
-        $this->publishes([
-            __DIR__.'/../database/migrations/' => $this->app->databasePath().'/migrations',
-        ], 'migrations');
-    }
-
-    /**
      * Register any application services.
      */
     public function register()
@@ -57,5 +47,15 @@ class ConfigServiceProvider extends ServiceProvider
     public function provides()
     {
         return ['config'];
+    }
+
+    /**
+     * handle publishes.
+     */
+    protected function handlePublishes()
+    {
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => $this->app->databasePath().'/migrations',
+        ], 'migrations');
     }
 }
