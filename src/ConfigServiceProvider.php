@@ -30,7 +30,7 @@ class ConfigServiceProvider extends ServiceProvider
         $this->app->singleton(Repository::class, function ($app) {
             $config = [
                 'protected' => [
-                    'app.locale',
+                    'app',
                     'auth.defaults.guard',
                 ],
                 'path' => $app->storagePath().'/app/',
