@@ -31,11 +31,11 @@ class DatabaseRepository extends AbstractRepository
     protected $model;
 
     /**
-     * $filesystem.
+     * $files.
      *
      * @var \Illuminate\Filesystem\Filesystem
      */
-    protected $filesystem;
+    protected $files;
 
     /**
      * $config.
@@ -51,26 +51,16 @@ class DatabaseRepository extends AbstractRepository
      * @param \Recca0120\Config\Config $model
      * @param array $config
      */
-    public function __construct(Repository $repository, Config $model, Filesystem $filesystem, $config = [])
+    public function __construct(Repository $repository, Config $model, Filesystem $files, $config = [])
     {
         parent::__construct($repository);
+
         $this->original = $repository->all();
         $this->model = $model;
-        $this->filesystem = $filesystem;
+        $this->files = $files;
         $this->config = $config;
 
-        $data = (array) value(function () {
-            $file = $this->getStorageFile();
-            if ($this->filesystem->exists($file) === true) {
-                return json_decode($this->filesystem->get($file), true);
-            }
-            $data = $this->getModel()->value;
-            $this->storeToFile($data);
-
-            return $data;
-        });
-
-        foreach (Arr::dot($data) as $key => $value) {
+        foreach (Arr::dot($this->load()) as $key => $value) {
             $repository->set($key, $value);
         }
     }
@@ -142,12 +132,29 @@ class DatabaseRepository extends AbstractRepository
             $data = [];
         }
         $option = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
-        $this->filesystem->put(
+        $this->files->put(
             $this->getStorageFile(),
             json_encode($data, $option)
         );
 
         return $this;
+    }
+
+    /**
+     * load.
+     *
+     * @return array
+     */
+    protected function load()
+    {
+        $storageFile = $this->getStorageFile();
+        if ($this->files->exists($storageFile) === true) {
+            return json_decode($this->files->get($storageFile), true);
+        }
+        $data = $this->getModel()->value;
+        $this->storeToFile($data);
+
+        return $data;
     }
 
     /**
