@@ -5,7 +5,7 @@ namespace Recca0120\Config\Middleware;
 use Recca0120\Config\Contracts\Repository;
 use Illuminate\Contracts\Foundation\Application;
 
-class SetConfigRepository
+class SwapConfigRepository
 {
     /**
      * $app.

@@ -1,90 +1,64 @@
 <?php
 
-use Mockery as m;
-use Recca0120\Config\ConfigServiceProvider;
+namespace Recca0120\Config\Tests;
 
-class ConfigServiceProviderTest extends PHPUnit_Framework_TestCase
+use stdClass;
+use Mockery as m;
+use PHPUnit\Framework\TestCase;
+use Recca0120\Config\ConfigServiceProvider;
+use Recca0120\Config\Repositories\DatabaseRepository;
+
+class ConfigServiceProviderTest extends TestCase
 {
-    public function tearDown()
+    protected function tearDown()
     {
         m::close();
     }
 
-    public function test_register()
+    public function testRegister()
     {
-        /*
-        |------------------------------------------------------------
-        | Arrange
-        |------------------------------------------------------------
-        */
+        $serviceProvider = new ConfigServiceProvider(
+            $app = m::mock('Illuminate\Contracts\Foundation\Application, ArrayAccess')
+        );
 
-        $app = m::spy('Illuminate\Contracts\Foundation\Application, ArrayAccess');
-        $config = m::spy('Illuminate\Contracts\Config\Repository');
-        $filesystem = m::spy('Illuminate\Filesystem\Filesystem');
-        $model = m::spy('Recca0120\Config\Config');
+        $app->shouldReceive('singleton')->once()->with('Recca0120\Config\Contracts\Repository', m::on(function($closure) use ($app) {
+            $app->shouldReceive('storagePath')->once()->andReturn(__DIR__);
+            $app->shouldReceive('offsetGet')->once()->with('config')->andReturn(
+                $config = m::mock('Illuminate\Contracts\Config\Repository')
+            );
+            $app->shouldReceive('make')->once()->with('Recca0120\Config\Config')->andReturn(
+                $model = m::mock('Recca0120\Config\Config')
+            );
+            $app->shouldReceive('offsetGet')->once()->with('files')->andReturn(
+                $files = m::mock('Illuminate\Filesystem\Filesystem')
+            );
 
-        /*
-        |------------------------------------------------------------
-        | Act
-        |------------------------------------------------------------
-        */
+            $object = new stdClass;
+            $object->value = [];
+            $config->shouldReceive('all')->once()->andReturn([]);
+            $files->shouldReceive('exists')->once()->andReturn(false);
+            $model->shouldReceive('firstOrCreate')->andReturn($object);
+            $files->shouldReceive('put')->once();
 
-        $model
-            ->shouldReceive('firstOrCreate')->andReturnSelf();
+            return $closure($app) instanceof DatabaseRepository;
+        }));
 
-        $app
-            ->shouldReceive('offsetGet')->with('config')->andReturn($config)
-            ->shouldReceive('offsetGet')->with('files')->andReturn($filesystem)
-            ->shouldReceive('make')->with('Recca0120\Config\Config')->andReturn($model)
-            ->shouldReceive('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->andReturnUsing(function ($className, $closure) use ($app) {
-                return $closure($app);
-            });
-
-        $serviceProvider = new ConfigServiceProvider($app);
         $serviceProvider->register();
-
-        /*
-        |------------------------------------------------------------
-        | Assert
-        |------------------------------------------------------------
-        */
-
-        $app->shouldHaveReceived('offsetGet')->with('config')->once();
-        $app->shouldHaveReceived('offsetGet')->with('files')->once();
-        $app->shouldHaveReceived('make')->with('Recca0120\Config\Config')->once();
-        $app->shouldHaveReceived('singleton')->with('Recca0120\Config\Contracts\Repository', m::type('Closure'))->once();
+        $this->assertSame(['config'], $serviceProvider->provides());
     }
 
-    public function test_boot()
+    public function testBoot()
     {
-        /*
-        |------------------------------------------------------------
-        | Arrange
-        |------------------------------------------------------------
-        */
+        $serviceProvider = new ConfigServiceProvider(
+            $app = m::mock('Illuminate\Contracts\Foundation\Application, ArrayAccess')
+        );
 
-        $app = m::spy('Illuminate\Contracts\Foundation\Application, ArrayAccess');
-        $kernel = m::spy('Illuminate\Contracts\Http\Kernel');
+        $app->shouldReceive('runningInConsole')->once()->andReturn(true);
+        $app->shouldReceive('databasePath')->once()->andReturn(__DIR__);
 
-        /*
-        |------------------------------------------------------------
-        | Act
-        |------------------------------------------------------------
-        */
+        $kernel = m::mock('\Illuminate\Contracts\Http\Kernel');
+        $kernel->shouldReceive('pushMiddleware')->once()->with('Recca0120\Config\Middleware\SwapConfigRepository');
 
-        $app
-            ->shouldReceive('runningInConsole')->andReturn(true);
-
-        $serviceProvider = new ConfigServiceProvider($app);
         $serviceProvider->boot($kernel);
-        $serviceProvider->provides();
-
-        /*
-        |------------------------------------------------------------
-        | Assert
-        |------------------------------------------------------------
-        */
-
-        $kernel->shouldHaveReceived('pushMiddleware')->with('Recca0120\Config\Middleware\SetConfigRepository')->once();
     }
 }

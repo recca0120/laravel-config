@@ -149,9 +149,9 @@ class DatabaseRepository extends AbstractRepository
     {
         $storageFile = $this->getStorageFile();
         if ($this->files->exists($storageFile) === true) {
-            return json_decode($this->files->get($storageFile), true);
+            return (array) json_decode($this->files->get($storageFile), true);
         }
-        $data = $this->getModel()->value;
+        $data = (array) $this->getModel()->value;
         $this->storeToFile($data);
 
         return $data;
