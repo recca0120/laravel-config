@@ -5,7 +5,7 @@ namespace Recca0120\Config;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 use Recca0120\Config\Contracts\Repository;
-use Recca0120\Config\Middleware\SwapConfigRepository;
+use Recca0120\Config\Middleware\SwapConfig;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
 class ConfigServiceProvider extends ServiceProvider
@@ -17,7 +17,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function boot(Kernel $kernel)
     {
-        $kernel->pushMiddleware(SwapConfigRepository::class);
+        $kernel->pushMiddleware(SwapConfig::class);
 
         if ($this->app->runningInConsole() === true) {
             $this->handlePublishes();

@@ -21,7 +21,7 @@ class ConfigServiceProviderTest extends TestCase
             $app = m::mock('Illuminate\Contracts\Foundation\Application, ArrayAccess')
         );
 
-        $app->shouldReceive('singleton')->once()->with('Recca0120\Config\Contracts\Repository', m::on(function($closure) use ($app) {
+        $app->shouldReceive('singleton')->once()->with('Recca0120\Config\Contracts\Repository', m::on(function ($closure) use ($app) {
             $app->shouldReceive('storagePath')->once()->andReturn(__DIR__);
             $app->shouldReceive('offsetGet')->once()->with('config')->andReturn(
                 $config = m::mock('Illuminate\Contracts\Config\Repository')
@@ -57,7 +57,7 @@ class ConfigServiceProviderTest extends TestCase
         $app->shouldReceive('databasePath')->once()->andReturn(__DIR__);
 
         $kernel = m::mock('\Illuminate\Contracts\Http\Kernel');
-        $kernel->shouldReceive('pushMiddleware')->once()->with('Recca0120\Config\Middleware\SwapConfigRepository');
+        $kernel->shouldReceive('pushMiddleware')->once()->with('Recca0120\Config\Middleware\SwapConfig');
 
         $serviceProvider->boot($kernel);
     }

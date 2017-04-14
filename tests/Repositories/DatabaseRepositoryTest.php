@@ -75,7 +75,7 @@ class DatabaseRepositoryTest extends TestCase
 
         $originalRepository->shouldReceive('push')->andReturnUsing(function ($key, $value) use (&$data) {
             return $data = array_merge($data, [$key => $value]);
-        });;
+        });
         $repository->push('h', 'i');
 
         $repository->set('a', ['b']);

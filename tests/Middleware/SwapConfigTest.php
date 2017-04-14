@@ -4,9 +4,9 @@ namespace Recca0120\Config\Tests\Middleware;
 
 use Mockery as m;
 use PHPUnit\Framework\TestCase;
-use Recca0120\Config\Middleware\SwapConfigRepository;
+use Recca0120\Config\Middleware\SwapConfig;
 
-class SwapConfigRepositoryTest extends TestCase
+class SwapConfigTest extends TestCase
 {
     protected function tearDown()
     {
@@ -15,7 +15,7 @@ class SwapConfigRepositoryTest extends TestCase
 
     public function test_middleware()
     {
-        $middleware = new SwapConfigRepository(
+        $middleware = new SwapConfig(
             $app = m::mock('Illuminate\Contracts\Foundation\Application'),
             $config = m::mock('Recca0120\Config\Contracts\Repository')
         );
