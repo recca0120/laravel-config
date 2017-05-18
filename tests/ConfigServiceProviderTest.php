@@ -4,8 +4,8 @@ namespace Recca0120\Config\Tests;
 
 use stdClass;
 use Mockery as m;
-use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
+use Illuminate\Container\Container;
 use Recca0120\Config\ConfigServiceProvider;
 use Recca0120\Config\Repositories\DatabaseRepository;
 

@@ -34,8 +34,14 @@ date_default_timezone_set('UTC');
 
 Carbon::setTestNow(Carbon::now());
 
-if (function_exists('storage_path') === false) {
+if (! function_exists('storage_path')) {
     function storage_path()
+    {
+    }
+}
+
+if (! function_exists('database_path')) {
+    function database_path()
     {
     }
 }
