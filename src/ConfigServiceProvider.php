@@ -35,7 +35,7 @@ class ConfigServiceProvider extends ServiceProvider
                     'app',
                     'auth.defaults.guard',
                 ],
-                'path' => $app->storagePath().'/app/',
+                'path' => storage_path('app'),
             ];
 
             return new DatabaseRepository($app['config'], $app->make(Config::class), $app['files'], $config);
@@ -58,7 +58,7 @@ class ConfigServiceProvider extends ServiceProvider
     protected function handlePublishes()
     {
         $this->publishes([
-            __DIR__.'/../database/migrations/' => $this->app->databasePath().'/migrations',
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
         ], 'migrations');
     }
 }

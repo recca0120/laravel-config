@@ -33,3 +33,9 @@ if (class_exists('PHPUnit\Framework\TestCase') === false) {
 date_default_timezone_set('UTC');
 
 Carbon::setTestNow(Carbon::now());
+
+if (function_exists('storage_path') === false) {
+    function storage_path()
+    {
+    }
+}

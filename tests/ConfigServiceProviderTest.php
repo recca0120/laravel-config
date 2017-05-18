@@ -4,14 +4,25 @@ namespace Recca0120\Config\Tests;
 
 use stdClass;
 use Mockery as m;
+use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Recca0120\Config\ConfigServiceProvider;
 use Recca0120\Config\Repositories\DatabaseRepository;
 
 class ConfigServiceProviderTest extends TestCase
 {
+    protected function setUp()
+    {
+        parent::setUp();
+        $container = m::mock(new Container);
+        $container->instance('path.storage', __DIR__);
+        $container->shouldReceive('databasePath')->andReturn(__DIR__);
+        Container::setInstance($container);
+    }
+
     protected function tearDown()
     {
+        parent::tearDown();
         m::close();
     }
 
@@ -22,7 +33,6 @@ class ConfigServiceProviderTest extends TestCase
         );
 
         $app->shouldReceive('singleton')->once()->with('Recca0120\Config\Contracts\Repository', m::on(function ($closure) use ($app) {
-            $app->shouldReceive('storagePath')->once()->andReturn(__DIR__);
             $app->shouldReceive('offsetGet')->once()->with('config')->andReturn(
                 $config = m::mock('Illuminate\Contracts\Config\Repository')
             );
@@ -54,11 +64,10 @@ class ConfigServiceProviderTest extends TestCase
         );
 
         $app->shouldReceive('runningInConsole')->once()->andReturn(true);
-        $app->shouldReceive('databasePath')->once()->andReturn(__DIR__);
 
         $kernel = m::mock('\Illuminate\Contracts\Http\Kernel');
         $kernel->shouldReceive('pushMiddleware')->once()->with('Recca0120\Config\Middleware\SwapConfig');
 
-        $serviceProvider->boot($kernel);
+        $this->assertNull($serviceProvider->boot($kernel));
     }
 }
