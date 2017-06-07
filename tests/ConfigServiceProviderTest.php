@@ -49,8 +49,9 @@ class ConfigServiceProviderTest extends TestCase
             $files->shouldReceive('exists')->once()->andReturn(false);
             $model->shouldReceive('firstOrCreate')->andReturn($object);
             $files->shouldReceive('put')->once();
+            $databaseRepository = $closure($app);
 
-            return $closure($app) instanceof DatabaseRepository;
+            return $databaseRepository instanceof DatabaseRepository;
         }));
 
         $serviceProvider->register();

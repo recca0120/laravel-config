@@ -95,7 +95,7 @@ class DatabaseRepository extends AbstractRepository
      */
     public function getStorageFile()
     {
-        return Arr::get($this->config, 'path').'config.json';
+        return Arr::get($this->config, 'path').'/config.json';
     }
 
     /**
