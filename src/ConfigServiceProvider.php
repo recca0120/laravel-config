@@ -35,7 +35,7 @@ class ConfigServiceProvider extends ServiceProvider
                     'app',
                     'auth.defaults.guard',
                 ],
-                'path' => storage_path('app'),
+                'cache' => storage_path('app/config.json'),
             ];
 
             return new DatabaseRepository($app['config'], $app->make(Config::class), $app['files'], $config);

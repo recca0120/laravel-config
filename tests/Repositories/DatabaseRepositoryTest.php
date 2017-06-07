@@ -46,6 +46,7 @@ class DatabaseRepositoryTest extends TestCase
             'protected' => [
                 'auth.defaults.guard',
             ],
+            'cache' => 'config.json',
         ]);
 
         $model->shouldReceive('fill')->andReturnSelf();

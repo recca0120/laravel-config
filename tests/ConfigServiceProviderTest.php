@@ -50,6 +50,7 @@ class ConfigServiceProviderTest extends TestCase
             $model->shouldReceive('firstOrCreate')->andReturn($object);
             $files->shouldReceive('put')->once();
             $databaseRepository = $closure($app);
+            $this->assertSame(storage_path('app/config.json'), $databaseRepository->getCacheFile());
 
             return $databaseRepository instanceof DatabaseRepository;
         }));

@@ -89,13 +89,13 @@ class DatabaseRepository extends AbstractRepository
     }
 
     /**
-     * getStorageFile.
+     * getCacheFile.
      *
      * @return string
      */
-    public function getStorageFile()
+    public function getCacheFile()
     {
-        return Arr::get($this->config, 'path').'/config.json';
+        return Arr::get($this->config, 'cache');
     }
 
     /**
@@ -133,7 +133,7 @@ class DatabaseRepository extends AbstractRepository
         }
         $option = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
         $this->files->put(
-            $this->getStorageFile(),
+            $this->getCacheFile(),
             json_encode($data, $option)
         );
 
@@ -147,7 +147,7 @@ class DatabaseRepository extends AbstractRepository
      */
     protected function load()
     {
-        $storageFile = $this->getStorageFile();
+        $storageFile = $this->getCacheFile();
         if ($this->files->exists($storageFile) === true) {
             return (array) json_decode($this->files->get($storageFile), true);
         }
