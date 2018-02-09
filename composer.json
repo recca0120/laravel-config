@@ -16,8 +16,8 @@
         "illuminate/filesystem": "^5.0"
     },
     "require-dev": {
-        "mockery/mockery": "~0.9.4",
-        "phpunit/phpunit": "~4.8|~5.4|~6.1",
+        "mockery/mockery": "~0.9.4|~1.0",
+        "phpunit/phpunit": "~4.8|~5.4|~6.1|~7.0",
         "nesbot/carbon": "~1.20"
     },
     "autoload": {
@@ -32,6 +32,9 @@
     },
     "config": {
         "preferred-install": "dist",
-        "sort-packages": true
-    }
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
