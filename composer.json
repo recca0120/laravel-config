@@ -36,5 +36,12 @@
         "optimize-autoloader": true
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Recca0120\\Config\\ConfigServiceProvider "
+            ]
+        }
+    }
 }
