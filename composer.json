@@ -40,7 +40,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Recca0120\\Config\\ConfigServiceProvider "
+                "Recca0120\\Config\\ConfigServiceProvider"
             ]
         }
     }
